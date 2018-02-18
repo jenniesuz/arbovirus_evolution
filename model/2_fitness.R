@@ -1,6 +1,8 @@
 library(ggplot2)
 
 # This script contains the virus fitness functions for persistent and acute infections #
+
+
 #********************************PLOT FUNCTION**************************************
 plot.func <- function(var,vals,name,plotno,ylabel=expression(paste("Virus fitness (",omega,")"))){
   plot(var
@@ -14,6 +16,8 @@ plot.func <- function(var,vals,name,plotno,ylabel=expression(paste("Virus fitnes
   )
 }
 #**************************************************************************************
+
+
 
 #****************PERSISTENT INFECTION WITH NO DELAY/ LATENT PERIOD*******************
 #******************************fitness function*************************************
@@ -98,6 +102,9 @@ dev.off()
 #**************************************************************************
 
 
+
+
+
 #********************ACUTE INFECTION NO LATENT PERIOD****************
 #**********************fitness function**************************
 acute.fit <- function(mu_v =0.1
@@ -116,7 +123,6 @@ acute.fit.v <- Vectorize(acute.fit)
 #**************************************************************
 
 #*******************ACUTE INFECTION WITH LATENT PERIOD******************
-
 #***************************fitness function*******************
 acute.fit.latent <- function(mu_v=0.1
                       ,mu_c = 1/120   
@@ -146,7 +152,7 @@ vals.gam <- acute.fit.v(gamma=gam)        # alpha really influences initial incr
 vals.bet <- acute.fit.v(beta=bet)
 vals.alp <- acute.fit.v(alpha=alph)
 
-pdf(file="figy.pdf",width=6,height=3)
+pdf(file="fig4.pdf",width=4,height=4)
 par(mfcol=c(2,2),mar=c(4,4,1,1),cex=0.6)
 plot.func(var=gam
           ,vals=vals.gam

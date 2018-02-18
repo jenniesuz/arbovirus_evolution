@@ -37,7 +37,7 @@ lam <- seq(1,1000,0.1) #seq(0,10^2.5,2)
 bet <- seq(10^-10,10^-8,10^-10) #seq(10^-10,10^-5,10^-8)
 t <- seq(0.5,10,0.1)
 
-#********plot first for set other parameters************
+#********Plots************
 pdf(file="fig2.pdf",width=6,height=4)
 par(mfcol=c(1,2),mar=c(4,4,1,1),cex=0.6)
 foi.lam <- do.dl.v(lambda=lam)
@@ -126,7 +126,7 @@ Deriv(  expression(  - (( (mu_i + mu_v + alpha)  - sqrt(  (mu_i + mu_v + alpha)^
 #***********************************
 
 
-#*******force of selection functions********************
+#*******Force of selection with respect to gamma********************
 do.dg <- function(gamma= 100
                   ,alpha = 1/24
                   ,beta = 10^-6
@@ -136,9 +136,8 @@ do.dg <- function(gamma= 100
   return(  ( alpha*beta*S / sqrt( (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*gamma*alpha)  ) )
   )
 }
-
 do.dg.v <- Vectorize(do.dg)
-
+#*******Force of selection with respect to beta********************
 do.db <- function(gamma= 100
                   ,alpha = 1/24
                   ,beta = 10^-6
@@ -148,9 +147,8 @@ do.db <- function(gamma= 100
   return( ( gamma*alpha*S / sqrt( (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*gamma*alpha)  ) )
   )
 }
-
 do.db.v <- Vectorize(do.db)
-
+#********Force of selection with respect to alpha*************
 do.da <- function(gamma= 100
                   ,alpha = 1/24
                   ,beta = 10^-6
@@ -164,21 +162,44 @@ do.da <- function(gamma= 100
 
 do.da.v <- Vectorize(do.da)
 #****************************************************
-par(mfcol=c(1,2))
-foi.alph <- do.da.v(alpha=seq(1/120,1,1/100))
 
-plot(seq(1/120,1,1/100),foi.alph
+#*********************RANGES FOR PARAMETER VALUES***************************
+gam <- seq(10,10^3,10) #seq(0,10^2.5,2)
+bet <- seq(10^-10,10^-8,10^-10) #seq(10^-10,10^-5,10^-8)
+alph <- seq(1/120,1/3,1/200)
+t <- seq(0.5,10,0.1)
+#***************************************************************************
+
+
+#******************Plot****************************************
+foi.alph <- do.da.v(alpha=alph)
+foi.gam <- do.dg.v(gamma=gam)
+foi.bet <- do.db.v(beta=bet)
+
+pdf(file="fig5.pdf",width=4,height=4)
+par(mfcol=c(2,2),mar=c(4,4,1,1),cex=0.6)
+
+plot(alph,foi.alph
      ,bty="n"
      ,type="l"
      ,xlab=expression(paste("Apoptosis rate (",alpha,")"))
-     ,ylab="d(fitness)/d(apoptosis rate)")
+     ,ylab="Force of selection"
+     ,main="a")
 
-foi.gam <- do.dg.v(gamma=seq(10,10^3,10),S=10^6,alpha=1/2)
-
-plot(seq(10,10^3,10),foi.gam
+plot(gam,foi.gam
      ,bty="n"
      ,type="l"
      ,xlab=expression(paste("Virus yeild (",gamma,")"))
-     ,ylab="d(fitness)/d(virus yeild)")
+     ,ylab="Force of selection"
+     ,main="b"
+     )
 
+plot(bet,foi.bet
+     ,bty="n"
+     ,type="l"
+     ,xlab=expression(paste("Virus infection rate (",beta,")"))
+     ,ylab="Force of selection"
+     ,main="c")
 
+dev.off()
+#***************************************************************************
