@@ -56,6 +56,7 @@ p.latent.fit.v <- Vectorize(p.latent.fit)
 lam <- seq(1,1000,0.1) #seq(0,10^2.5,2)
 bet <- seq(10^-10,10^-5,10^-10) #seq(10^-10,10^-5,10^-8)
 t <- seq(0.5,10,0.1)
+S <- 10^6
 #**************************************************************************
 
 #********PLOT NO LATENT for range of beta and lambda values***********
@@ -63,15 +64,15 @@ vals.lam <- persist.fit.v(lambda=lam)
 vals.bet <- persist.fit.v(beta=bet)
 
 pdf(file="fig1.pdf",width=6,height=4)
-par(mfcol=c(1,2),mar=c(4,4,1,1),cex=0.6)
+par(mfcol=c(1,2),mar=c(4,4,1,1),cex=0.7)
 plot.func(var=lam
           ,vals=vals.lam
           ,name=expression(paste("Virus budding rate (",lambda,")"))
           ,plotno="a"
 )
-plot.func(var=bet
+plot.func(var=bet*S
           ,vals=vals.bet
-          ,name=expression(paste("Virus infection rate (",beta,")"))
+          ,name=expression(paste(beta,italic("S")))
           ,plotno="b"
           ,ylabel="")
 
@@ -143,7 +144,7 @@ acute.fit.latent.v <- Vectorize(acute.fit.latent)
 #*********************RANGES FOR PARAMETER VALUES***************************
 gam <- seq(0,10^4,100) #seq(0,10^2.5,2)
 bet <- seq(10^-10,10^-5,10^-10) #seq(10^-10,10^-5,10^-8)
-alph <- seq(1/120,1/3,1/200)
+alph <- seq(1/72,1/2,1/200)
 t <- seq(0.5,10,0.1)
 #**************************************************************************
 
@@ -153,20 +154,20 @@ vals.bet <- acute.fit.v(beta=bet)
 vals.alp <- acute.fit.v(alpha=alph)
 
 pdf(file="fig4.pdf",width=4,height=4)
-par(mfcol=c(2,2),mar=c(4,4,1,1),cex=0.6)
+par(mfcol=c(2,2),mar=c(4,4,1,1),cex=0.5)
 plot.func(var=gam
           ,vals=vals.gam
           ,name=expression(paste("Virus yeild at apoptosis (",gamma,")"))
           ,plotno="a")
 
-plot.func(var=bet
+plot.func(var=bet*S
           ,vals=vals.bet
-          ,name=expression(paste("Virus infection rate (",beta,")"))
+          ,name=expression(paste(beta,italic("S")))
           ,plotno="b")
 
-plot.func(var=bet
-          ,vals=vals.bet
-          ,name=expression(paste("Virus apoptosis rate (",alpha,")"))
+plot.func(var=1/alph
+          ,vals=vals.alp
+          ,name=expression(paste("Inverse of virus apoptosis rate (1/",alpha,")"))
           ,plotno="c")
 
 dev.off()

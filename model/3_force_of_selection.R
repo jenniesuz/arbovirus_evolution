@@ -34,9 +34,9 @@ do.db <- function(lambda = 10^2
 do.db.v <- Vectorize(do.db)
 #****************************************************
 lam <- seq(1,1000,0.1) #seq(0,10^2.5,2)
-bet <- seq(10^-10,10^-8,10^-10) #seq(10^-10,10^-5,10^-8)
+bet <- seq(10^-10,10^-7,10^-10) #seq(10^-10,10^-5,10^-8)
 t <- seq(0.5,10,0.1)
-
+S <- 10^6
 #********Plots************
 pdf(file="fig2.pdf",width=6,height=4)
 par(mfcol=c(1,2),mar=c(4,4,1,1),cex=0.6)
@@ -52,10 +52,10 @@ plot(lam,foi.lam
 
 foi.bet <- do.db.v(beta=bet)
 
-plot(bet,foi.bet
+plot(bet*S,foi.bet
      ,bty="n"
      ,type="l"
-     ,xlab=expression(paste("Virus infection rate (",beta,")"))
+     ,xlab=expression(paste(beta,"S"))
      ,ylab=" "
      ,main="b"
 )
@@ -165,8 +165,8 @@ do.da.v <- Vectorize(do.da)
 
 #*********************RANGES FOR PARAMETER VALUES***************************
 gam <- seq(10,10^3,10) #seq(0,10^2.5,2)
-bet <- seq(10^-10,10^-8,10^-10) #seq(10^-10,10^-5,10^-8)
-alph <- seq(1/120,1/3,1/200)
+bet <- seq(10^-10,10^-7,10^-10)  #seq(10^-10,10^-5,10^-8)
+alph <- seq(1/72,1/3,1/200)
 t <- seq(0.5,10,0.1)
 #***************************************************************************
 
@@ -179,10 +179,10 @@ foi.bet <- do.db.v(beta=bet)
 pdf(file="fig5.pdf",width=4,height=4)
 par(mfcol=c(2,2),mar=c(4,4,1,1),cex=0.6)
 
-plot(alph,foi.alph
+plot(1/alph,foi.alph
      ,bty="n"
      ,type="l"
-     ,xlab=expression(paste("Apoptosis rate (",alpha,")"))
+     ,xlab=expression(paste("Inverse of the apoptosis rate (1/",alpha,")"))
      ,ylab="Force of selection"
      ,main="a")
 
@@ -194,10 +194,10 @@ plot(gam,foi.gam
      ,main="b"
      )
 
-plot(bet,foi.bet
+plot(bet*S,foi.bet
      ,bty="n"
      ,type="l"
-     ,xlab=expression(paste("Virus infection rate (",beta,")"))
+     ,xlab=expression(paste(beta,italic("S")))
      ,ylab="Force of selection"
      ,main="c")
 
