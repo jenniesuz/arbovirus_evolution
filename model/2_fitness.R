@@ -38,7 +38,7 @@ persist.fit.v <- Vectorize(persist.fit)
 #*************PERSISTENT INFECTION WITH LATENT PERIOD******************************
 #***************************fitness function*******************
 p.latent.fit <- function(mu_v=0.1
-                         ,mu_c = 1/240 #1/120   
+                         ,mu_c = 1/120 #1/120   
                          ,beta = 10^-6       # probability of infecting susceptible cells
                          ,lambda=10^2        # release rate of virus
                          ,tau=3
@@ -61,18 +61,18 @@ S <- 10^6
 
 #********PLOT NO LATENT for range of beta and lambda values***********
 vals.lam <- persist.fit.v(lambda=lam)
-vals.bet <- persist.fit.v(beta=bet)
+vals.bet.p <- persist.fit.v(beta=bet)
 
 pdf(file="fig1.pdf",width=6,height=4)
-par(mfcol=c(1,2),mar=c(4,4,1,1),cex=0.7)
+par(mfcol=c(1,2),mar=c(4,4,1,1),cex=0.5)
 plot.func(var=lam
           ,vals=vals.lam
           ,name=expression(paste("Virus budding rate (",lambda,")"))
           ,plotno="a"
 )
 plot.func(var=bet*S
-          ,vals=vals.bet
-          ,name=expression(paste(beta,italic("S")))
+          ,vals=vals.bet.p
+          ,name=expression(paste("Product of virus infection rate and number of susceptible cells (", beta,italic("S"),")"))
           ,plotno="b"
           ,ylabel="")
 
@@ -111,7 +111,7 @@ dev.off()
 acute.fit <- function(mu_v =0.1
                       ,mu_c = 1/120   
                       ,beta = 10^-6       # probability of infecting susceptible cells
-                      ,gamma = 10^3       # virus yeild at apoptosis
+                      ,gamma = 2400       # virus yeild at apoptosis - set so equivalent to lambda
                       ,alpha = 1/24       # apoptosis rate
                       ,K = 10^6){
   
@@ -128,7 +128,7 @@ acute.fit.v <- Vectorize(acute.fit)
 acute.fit.latent <- function(mu_v=0.1
                       ,mu_c = 1/120   
                       ,beta = 10^-6       
-                      ,gamma=10^2         
+                      ,gamma= 2400        
                       ,alpha=1/24
                       ,tau=3
                       ,S = 10^6){
@@ -142,20 +142,22 @@ acute.fit.latent.v <- Vectorize(acute.fit.latent)
 #*********************************************************************************
 
 #*********************RANGES FOR PARAMETER VALUES***************************
-gam <- seq(0,10^4,100) #seq(0,10^2.5,2)
+gam <- lam*24 #seq(0,10^2.5,2)
 bet <- seq(10^-10,10^-5,10^-10) #seq(10^-10,10^-5,10^-8)
 alph <- seq(1/72,1/2,1/200)
+gamforalph <- 1/alph*100        # keep as equivalent virus production per unit time as persistent infection
+
 t <- seq(0.5,10,0.1)
 #**************************************************************************
 
 #********PLOT NO LATENT for range of values***********
 vals.gam <- acute.fit.v(gamma=gam)        # alpha really influences initial increase for given gamma
 vals.bet <- acute.fit.v(beta=bet)
-vals.alp <- acute.fit.v(alpha=alph)
+vals.alp <- acute.fit.v(alpha=alph,gamma=gamforalph)
 
 pdf(file="fig4.pdf",width=4,height=4)
 par(mfcol=c(2,2),mar=c(4,4,1,1),cex=0.5)
-plot.func(var=gam
+plot.func(var=gam/24
           ,vals=vals.gam
           ,name=expression(paste("Virus yeild at apoptosis (",gamma,")"))
           ,plotno="a")
