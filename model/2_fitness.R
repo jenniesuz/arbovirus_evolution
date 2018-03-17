@@ -143,7 +143,9 @@ acute.fit.latent.v <- Vectorize(acute.fit.latent)
 
 #*********************RANGES FOR PARAMETER VALUES***************************
 gam <- lam*24 #seq(0,10^2.5,2)
+
 bet <- seq(10^-10,10^-5,10^-10) #seq(10^-10,10^-5,10^-8)
+
 alph <- seq(1/72,1/2,1/200)
 gamforalph <- 1/alph*100        # keep as equivalent virus production per unit time as persistent infection
 
@@ -153,11 +155,12 @@ t <- seq(0.5,10,0.1)
 #********PLOT NO LATENT for range of values***********
 vals.gam <- acute.fit.v(gamma=gam)        # alpha really influences initial increase for given gamma
 vals.bet <- acute.fit.v(beta=bet)
-vals.alp <- acute.fit.v(alpha=alph,gamma=gamforalph)
+vals.alp.gam <- acute.fit.v(alpha=alph,gamma=gamforalph)
+vals.alp <- acute.fit.v(alpha=alph)
 
 pdf(file="fig4.pdf",width=4,height=4)
 par(mfcol=c(2,2),mar=c(4,4,1,1),cex=0.5)
-plot.func(var=gam/24
+plot.func(var=gam
           ,vals=vals.gam
           ,name=expression(paste("Virus yeild at apoptosis (",gamma,")"))
           ,plotno="a")
@@ -168,9 +171,14 @@ plot.func(var=bet*S
           ,plotno="b")
 
 plot.func(var=1/alph
-          ,vals=vals.alp
+          ,vals=vals.alp.gam
           ,name=expression(paste("Inverse of virus apoptosis rate (1/",alpha,")"))
           ,plotno="c")
+
+plot.func(var=1/alph
+          ,vals=vals.alp
+          ,name=expression(paste("Inverse of virus apoptosis rate (1/",alpha,")"))
+          ,plotno="d")
 
 dev.off()
 #****************************************************************
@@ -207,6 +215,15 @@ plot.func(var=t
 dev.off()
 
 #***********************************************************************************************************************************
+
+
+
+
+
+
+
+
+
 
 
 #****************MODEL PERMITTING BOTH TYPES OF INFECTION WITH NO DELAY/ LATENT PERIOD*******************
