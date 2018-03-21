@@ -230,16 +230,16 @@ dev.off()
 
 #**********************************
 # derivative w.r.t gamma
-Deriv(  expression(  - (( (mu_i + mu_v + alpha)  - sqrt(  (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda)) )  )/2)) ,"gamma")
+Deriv(  expression( (-(mu_i + mu_v + alpha)  + sqrt(  (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda)) )  )/2) ,"gamma")
 
 # derivative w.r.t beta
-Deriv(  expression(  - (( (mu_i + mu_v + alpha)  - sqrt(  (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda)))   )/2)) ,"beta")
+Deriv(  expression(  (- (mu_i + mu_v + alpha)  + sqrt(  (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda)))   )/2) ,"beta")
 
 # derivative w.r.t alpha
-Deriv(  expression(  - (( (mu_i + mu_v + alpha)  - sqrt(  (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda)))   )/2)) ,"alpha")
+Deriv(  expression(  (-(mu_i + mu_v + alpha)  + sqrt(  (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda)))   )/2) ,"alpha")
 
 # derivative w.r.t. lambda
-Deriv(  expression(  - (( (mu_i + mu_v + alpha)  - sqrt(  (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda)))   )/2)) ,"lambda")
+Deriv(  expression(  (-(mu_i + mu_v + alpha)  + sqrt(  (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda)))   )/2) ,"lambda")
 
 #***********************************
 
@@ -277,7 +277,7 @@ do.da <- function(gamma= 2400
                   ,mu_i = 1/120
                   ,mu_v = 0.1 ){ 
   return( 
-    -0.5*(1-0.5*(2*(alpha+mu_i+mu_v) - 4*(mu_v - beta*gamma*S) )/sqrt( (alpha+mu_i+mu_v)^2 - 4*(mu_v*(alpha + mu_i) - beta*S*(gamma*alpha+lambda)) )  )
+    0.5*(0.5*(2*(alpha+mu_i+mu_v) - 4*(mu_v - beta*gamma*S) )/sqrt( (alpha+mu_i+mu_v)^2 - 4*(mu_v*(alpha + mu_i) - beta*S*(gamma*alpha+lambda)) )  )
   )
 }
 
@@ -322,8 +322,8 @@ foi.betnogam <- do.db.v(beta=bet,lambda=10^2,gamma=0,alpha=0)
 foi.lam <- do.dl.v(lambda=lam)
 
 
-pdf(file="fig8.pdf",width=5,height=3)
-par(mfcol=c(1,3),mar=c(4,4,1,1),cex=0.5)
+pdf(file="fig8.pdf",width=4,height=4)
+par(mfcol=c(2,2),mar=c(4,4,1,1),cex=0.5)
 
 plot(bet*S,foi.betnolam
      ,bty="n"
@@ -354,27 +354,24 @@ plot(lam
      ,type="l"
      ,col="red"
      ,yaxs = "i"
-     ,ylim=c(0,0.02)
+     #,ylim=c(0,0.02)
+     ,ylab="Force of selection"
      #,xlab=expression(paste("Virus yeild (",gamma,")"))
-     ,xlab=expression(paste(lambda," or ",gamma, alpha))
-     ,ylab=""
+     ,xlab=expression(paste(lambda))
      ,main="b"
 )
-par(new=T)
-plot(gam*1/24
+
+plot(gam
      ,foi.gam
      ,bty="n"
      ,type="l"
      ,col="blue"
      ,yaxs = "i"
      ,lty=2
-     ,ylim=c(0,0.02)
-     #,yaxt="n"
-     #,xaxt="n"
-     ,xlab=" "
-     #,xlab=expression(paste("Virus yeild (",lamb,")"))
-     ,ylab=" "
-     ,main=""
+     #,ylim=c(0,0.02)
+     ,main="c"
+     ,xlab=expression(paste(gamma))
+     ,ylab="Force of selection"
 )
 
 
@@ -385,8 +382,8 @@ plot(1/alph
      ,lty=2
      ,type="l"
      ,xlab=expression(paste("1/",alpha))
-     ,ylab=" "
-     ,main="c")
+     ,ylab="Force of selection"
+     ,main="d")
 par(new=T)
 plot(1/alph
      ,foi.alph
@@ -397,9 +394,7 @@ plot(1/alph
      ,bty="n"
      ,type="l"
      ,xlab=" "
-     ,ylab=" "
-     #,xlab=expression(paste("Inverse of the apoptosis rate (1/",alpha,")"))
-    # ,ylab="Force of selection"
+     #,xlab=expression(paste("Inverse of the apoptosis rate (1/",alpha,")")
      ,main=" ")
 legend("topleft",legend=c("Constant virus yield","Variable virus yield"),col=c("blue","blue"),bty="n",lty=c(1,2))
 

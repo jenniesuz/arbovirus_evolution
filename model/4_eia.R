@@ -126,9 +126,9 @@ acute.mutfit <- function(mu_mv=0.1            # mutant virus clearance rate
                            ,alpha = 1/24        # resident virus apoptosis rate
                            ,gamma = 2400 ){     # resident virus yeild at apoptosis 
   
-  fit1 <- - (((alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*gamma_m*alpha_m*mu_c*mu_v)/(gamma*alpha*beta)) ) ) / 2)
-  fit2 <- - (((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*gamma_m*alpha_m*mu_c*mu_v)/(gamma*alpha*beta) ) ) ) / 2)
-  return(fit2)
+  fit1 <-  (-(alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*gamma_m*alpha_m*mu_c*mu_v)/(gamma*alpha*beta)) ) ) / 2
+  fit2 <-  (-(alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*gamma_m*alpha_m*mu_c*mu_v)/(gamma*alpha*beta) ) ) ) / 2
+  return(fit1)
 }
 
 acute.mutfit.v <- Vectorize(acute.mutfit)         # enable multiple values to be input for a parameter
@@ -149,13 +149,13 @@ fun <- function(x
                 ){
   
   if(gamma_m=="NA"){
-    return(-(((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*x*alpha_m*mu_c*mu_v)/(gamma*alpha*beta) ) ) ) / 2))
+    return( (-(alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*x*alpha_m*mu_c*mu_v)/(gamma*alpha*beta) ) ) ) / 2 )
   }else{
     if(beta_m=="NA"){
-      return(-(((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (x*gamma_m*alpha_m*mu_c*mu_v)/(gamma*alpha*beta) ) ) ) / 2))
+      return( (-(alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (x*gamma_m*alpha_m*mu_c*mu_v)/(gamma*alpha*beta) ) ) ) / 2)
       }else{
         if(alpha_m=="NA"){
-          return( -(((x+mu_mc+mu_mv) - sqrt( (x+mu_mc+mu_mv)^2 - 4*(x*mu_mv + mu_mv*mu_mc - (beta_m*gamma_m*x*mu_c*mu_v)/(gamma*alpha*beta) ) ) ) / 2))
+          return( (-(x+mu_mc+mu_mv) + sqrt( (x+mu_mc+mu_mv)^2 - 4*(x*mu_mv + mu_mv*mu_mc - (beta_m*gamma_m*x*mu_c*mu_v)/(gamma*alpha*beta) ) ) ) / 2)
       
           }
   }
@@ -221,21 +221,21 @@ mutfit <- function(mu_mv=0.1            # mutant virus clearance rate
                          ,gamma = 2400 
                          ,lambda = 100){     # resident virus yeild at apoptosis 
   
-  fit1 <- - (((alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda_m)*mu_v*(mu_c + alpha) )/((gamma*alpha + lambda)*beta)) ) ) / 2)
-  fit2 <- - (((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda_m)*mu_v*(mu_c + alpha))/((gamma*alpha + lambda)*beta) ) ) ) / 2)
-  return(fit2)
+  fit1 <- (-(alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda_m)*mu_v*(mu_c + alpha) )/((gamma*alpha + lambda)*beta)) ) ) / 2
+  fit2 <- (-(alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda_m)*mu_v*(mu_c + alpha))/((gamma*alpha + lambda)*beta) ) ) ) / 2
+  return(fit1)
 }
 
 mutfit.v <- Vectorize(mutfit)         # enable multiple values to be input for a parameter
 
 
-lam.mut<-mutfit.v(lambda_m=seq(1,100,0.01),alpha_m=0,gamma_m=0,lambda=0,gamma=10*24)
-plot(seq(1,100,0.01)
+lam.mut<-mutfit.v(lambda_m=lam,alpha_m=0,gamma_m=0,lambda=0,gamma=100*24)
+plot(lam
      ,lam.mut
      ,bty="n"
-     ,ylim=c(-0.1,0.15))
+     ,ylim=c(-0.05,0.15))
 abline(h=0)
-abline(v=10)
+abline(v=100)
 
 
 
@@ -255,18 +255,19 @@ fun <- function(x
                 ,lambda = 100
 ){
   
-  if(gamma_m=="NA"){
-    return(-(((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(x*alpha_m+lambda_m)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2))
+  if(gamma=="NA"){
+
+    return( (-(0+mu_mc+mu_mv) + sqrt( (0+mu_mc+mu_mv)^2 - 4*(0*mu_mv + mu_mv*mu_mc - (beta_m*(0*0+lambda_m)*mu_v*(mu_c+alpha))/( (x*alpha+0)*beta) ) ) ) / 2)
   }else{
     if(beta_m=="NA"){
-      return(-(((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (x*(gamma_m*alpha_m+lambda_m)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2))
+      return( (-(alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (x*(gamma_m*alpha_m+lambda_m)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2)
     }else{
       if(alpha_m=="NA"){
-        return( -(((x+mu_mc+mu_mv) - sqrt( (x+mu_mc+mu_mv)^2 - 4*(x*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*x+lambda_m)*mu_c*mu_v)/( (gamma*alpha + lambda)*beta) ) ) ) / 2))
+        return( (-(x+mu_mc+mu_mv) + sqrt( (x+mu_mc+mu_mv)^2 - 4*(x*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*x+lambda_m)*mu_c*mu_v)/( (gamma*alpha + lambda)*beta) ) ) ) / 2)
       }else{
         if(lambda_m=="NA"){
           #return(-(((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+x)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2))
-          return(-(((mu_mc+mu_mv) - sqrt( (mu_mc+mu_mv)^2 - 4*(mu_mv*mu_mc - (beta_m*(x)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2))      
+          return( (-(mu_mc+mu_mv) + sqrt( (mu_mc+mu_mv)^2 - 4*(mu_mv*mu_mc - (beta_m*(x)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2)
           }
       }
     }
@@ -274,4 +275,16 @@ fun <- function(x
 }
 
 
+lambda_m <-  seq(1,100,0.1)# range of values for mutant virus probabillity of susceptible cell infection
+fit.bound1 <- sapply(lambda_m,function(y){
+  uniroot.all(fun,c(0,10^3*24),lambda_m=y,gamma="NA")
+})
+
+plot(fit.bound1
+     ,lambda_m
+     ,type="l"
+     ,xlab="Resident virus yeild at apopotosis"
+     ,ylab="Mutant virus budding rate"
+     #,main="a"
+     ,bty="n")
 
