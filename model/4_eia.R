@@ -221,18 +221,23 @@ mutfit <- function(mu_mv=0.1            # mutant virus clearance rate
                          ,gamma = 2400 
                          ,lambda = 100){     # resident virus yeild at apoptosis 
   
-  fit1 <- - (((alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda)*mu_c*mu_v)/((gamma*alpha + lambda)*beta)) ) ) / 2)
-  fit2 <- - (((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda)*mu_c*mu_v)/((gamma*alpha + lambda)*beta) ) ) ) / 2)
+  fit1 <- - (((alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda_m)*mu_v*(mu_c + alpha) )/((gamma*alpha + lambda)*beta)) ) ) / 2)
+  fit2 <- - (((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda_m)*mu_v*(mu_c + alpha))/((gamma*alpha + lambda)*beta) ) ) ) / 2)
   return(fit2)
 }
 
 mutfit.v <- Vectorize(mutfit)         # enable multiple values to be input for a parameter
 
 
-lam.mut<-mutfit.v(lambda_m=seq(1,1000,0.1),alpha_m=0,gamma_m=0,lambda=0)
-plot(seq(1,1000,0.1)
+lam.mut<-mutfit.v(lambda_m=seq(1,100,0.01),alpha_m=0,gamma_m=0,lambda=0,gamma=10*24)
+plot(seq(1,100,0.01)
      ,lam.mut
-     ,bty="n")
+     ,bty="n"
+     ,ylim=c(-0.1,0.15))
+abline(h=0)
+abline(v=10)
+
+
 
 # re-write mutant virus fitness function for input to unitroot.all function
 fun <- function(x
