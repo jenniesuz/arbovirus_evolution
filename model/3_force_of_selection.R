@@ -324,40 +324,17 @@ foi.lam <- do.dl.v(lambda=lam)
 
 pdf(file="fig8.pdf",width=5,height=3)
 par(mfcol=c(1,3),mar=c(4,4,1,1),cex=0.5)
-plot(gam
-     ,foi.gam
-     ,bty="n"
-     ,type="l"
-     ,col="red"
-     #,xlab=expression(paste("Virus yeild (",gamma,")"))
-     ,xlab="Variable of interest"
-     ,ylab="Force of selection"
-     ,main="a"
-)
-legend("topleft",legend=c("No apoptosis","No budding"),col=c("red","blue"),bty="n",lty=c(1,2))
-par(new=T)
-plot(lam
-     ,foi.lam
-     ,bty="n"
-     ,type="l"
-     ,col="blue"
-     ,lty=2
-     ,yaxt="n"
-     ,xaxt="n"
-     ,xlab=" "
-     #,xlab=expression(paste("Virus yeild (",lamb,")"))
-     ,ylab=" "
-     ,main="a"
-)
 
 plot(bet*S,foi.betnolam
      ,bty="n"
      ,type="l"
      ,col="red"
      ,xlab=expression(paste(beta,italic("S")))
-     ,ylab=" "
+     ,ylab="Force of selection"
      #,log="y"
-     ,main="b")
+     ,main="a")
+legend("topright",legend=c("No apoptosis","No budding"),col=c("red","blue"),bty="n",lty=c(1,2))
+
 par(new=T)
 plot(bet*S,foi.betnogam
      ,bty="n"
@@ -369,14 +346,45 @@ plot(bet*S,foi.betnogam
      ,yaxt="n"
      ,xaxt="n"
      #,log="y"
-     ,main="b")
+     ,main="")
+
+plot(lam
+     ,foi.lam
+     ,bty="n"
+     ,type="l"
+     ,col="red"
+     ,yaxs = "i"
+     ,ylim=c(0,0.02)
+     #,xlab=expression(paste("Virus yeild (",gamma,")"))
+     ,xlab=expression(paste(lambda," or ",gamma, alpha))
+     ,ylab=""
+     ,main="b"
+)
+par(new=T)
+plot(gam*1/24
+     ,foi.gam
+     ,bty="n"
+     ,type="l"
+     ,col="blue"
+     ,yaxs = "i"
+     ,lty=2
+     ,ylim=c(0,0.02)
+     #,yaxt="n"
+     #,xaxt="n"
+     ,xlab=" "
+     #,xlab=expression(paste("Virus yeild (",lamb,")"))
+     ,ylab=" "
+     ,main=""
+)
+
+
 plot(1/alph
      ,foi.alphwithgam
      ,bty="n"
      ,col="blue"
      ,lty=2
      ,type="l"
-     ,xlab=expression(paste("Inverse of the apoptosis rate (1/",alpha,")"))
+     ,xlab=expression(paste("1/",alpha))
      ,ylab=" "
      ,main="c")
 par(new=T)

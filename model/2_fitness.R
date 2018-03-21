@@ -248,7 +248,7 @@ bet <- seq(10^-10,10^-5,10^-10) #seq(10^-10,10^-5,10^-8)
 gam <- lam*24  #seq(0,10^2.5,2)
 alph <- seq(1/72,1/2,1/200)
 
-gamforalph <- 1/alph*10^2
+gamforalph <- 1/alph*100
 
 
 S = 10^6
@@ -312,14 +312,14 @@ plot(lam
    )
 
 par(new=T)
-plot(gam
+plot(gam*1/24
      ,vals.gam.nolam
      ,xlab=""
      ,ylab=" "
      ,type="l"
      ,col="blue"
-     ,yaxt="n"
-     ,xaxt="n"
+     #,yaxt="n"
+    # ,xaxt="n"
      ,bty="n"
      ,lty=2
      ,ylim=c(0,40)

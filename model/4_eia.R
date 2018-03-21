@@ -172,6 +172,7 @@ alpha_m <- seq(1/120,1/2,1/200)
 fit.bound1 <- sapply(beta_m,function(y){
   uniroot.all(fun,c(0,10^3*24),beta_m=y,gamma_m="NA")
 })
+
 fit.bound2 <- sapply(alpha_m,function(y){
   uniroot.all(fun,c(10^-10,10^-2),alpha_m=y,beta_m="NA")
 })
@@ -196,3 +197,76 @@ plot(alpha_m
 
 dev.off()
 #*********************************************************
+
+
+
+
+
+
+
+
+
+#***********************COMBINED MODEL ACUTE AND PERSISTENT INFECTION*************************************
+#************* mutant virus fitness function************
+mutfit <- function(mu_mv=0.1            # mutant virus clearance rate
+                         ,mu_mc = 1/120       # mutant virus cell death rate
+                         ,beta_m = 10^-6      # mutant probability of infecting susceptible cells
+                         ,gamma_m = 2400      # mutant virus yeild at apoptosis
+                         ,lambda_m = 100
+                         ,alpha_m = 1/24      # mutant virus apoptosis rate
+                         ,mu_v=0.1            # resident virus clearance rate  
+                         ,mu_c = 1/120        # resident infected cell death rate 
+                         ,beta = 10^-6        # resident probability of infecting susceptible cells
+                         ,alpha = 1/24        # resident virus apoptosis rate
+                         ,gamma = 2400 
+                         ,lambda = 100){     # resident virus yeild at apoptosis 
+  
+  fit1 <- - (((alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda)*mu_c*mu_v)/((gamma*alpha + lambda)*beta)) ) ) / 2)
+  fit2 <- - (((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda)*mu_c*mu_v)/((gamma*alpha + lambda)*beta) ) ) ) / 2)
+  return(fit2)
+}
+
+mutfit.v <- Vectorize(mutfit)         # enable multiple values to be input for a parameter
+
+
+lam.mut<-mutfit.v(lambda_m=seq(1,1000,0.1),alpha_m=0,gamma_m=0,lambda=0)
+plot(seq(1,1000,0.1)
+     ,lam.mut
+     ,bty="n")
+
+# re-write mutant virus fitness function for input to unitroot.all function
+fun <- function(x
+                ,mu_mv=0.1            # mutant virus clearance rate
+                ,mu_mc = 1/120       # mutant virus cell death rate
+                ,beta_m = 10^-6      # mutant probability of infecting susceptible cells
+                ,gamma_m = 2400      # mutant virus yeild at apoptosis
+                ,lambda_m = 100
+                ,alpha_m = 1/24      # mutant virus apoptosis rate
+                ,mu_v=0.1            # resident virus clearance rate  
+                ,mu_c = 1/120        # resident infected cell death rate 
+                ,beta = 10^-6        # resident probability of infecting susceptible cells
+                ,alpha = 1/24        # resident virus apoptosis rate
+                ,gamma = 2400
+                ,lambda = 100
+){
+  
+  if(gamma_m=="NA"){
+    return(-(((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(x*alpha_m+lambda_m)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2))
+  }else{
+    if(beta_m=="NA"){
+      return(-(((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (x*(gamma_m*alpha_m+lambda_m)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2))
+    }else{
+      if(alpha_m=="NA"){
+        return( -(((x+mu_mc+mu_mv) - sqrt( (x+mu_mc+mu_mv)^2 - 4*(x*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*x+lambda_m)*mu_c*mu_v)/( (gamma*alpha + lambda)*beta) ) ) ) / 2))
+      }else{
+        if(lambda_m=="NA"){
+          #return(-(((alpha_m+mu_mc+mu_mv) - sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+x)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2))
+          return(-(((mu_mc+mu_mv) - sqrt( (mu_mc+mu_mv)^2 - 4*(mu_mv*mu_mc - (beta_m*(x)*mu_c*mu_v)/( (gamma*alpha+lambda)*beta) ) ) ) / 2))      
+          }
+      }
+    }
+  }
+}
+
+
+
