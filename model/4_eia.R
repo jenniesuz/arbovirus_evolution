@@ -228,14 +228,38 @@ mutfit <- function(mu_mv=0.1            # mutant virus clearance rate
 
 mutfit.v <- Vectorize(mutfit)         # enable multiple values to be input for a parameter
 
-
-lam.mut<-mutfit.v(lambda_m=lam,alpha_m=0,gamma_m=0,lambda=0,gamma=100*24)
+lam <- seq(1,100,0.1) 
+pdf(file="fig9.pdf",width=4,height=4)
+par(cex=0.5)
+lam.mut<-mutfit.v(lambda_m=lam,alpha_m=0,gamma_m=0,lambda=0,gamma=50*24,alpha=1/24)
 plot(lam
      ,lam.mut
      ,bty="n"
-     ,ylim=c(-0.05,0.15))
+     ,ylim=c(-0.05,0.15)
+     ,type="l"
+     ,col="red"
+     ,ylab="Mutant virus fitness"
+     ,xlab=expression(paste("Mutant virus budding rate (",lambda["m"]," )"))
+)
 abline(h=0)
-abline(v=100)
+abline(v=50)
+par(new=T)
+
+lam.mut<-mutfit.v(lambda_m=lam,alpha_m=0,gamma_m=0,lambda=0,gamma=50*120,alpha=1/120)
+
+plot(lam
+     ,lam.mut
+     ,bty="n"
+     ,ylim=c(-0.05,0.15)
+     ,type="l"
+     ,col="blue"
+     ,xaxt="n"
+     ,yaxt="n"
+     ,ylab=" "
+     ,xlab=" "
+)
+legend("topleft",bty="n",lty=1,legend=c(expression(paste(alpha,"= 1/24")),expression(paste(alpha,"=1/120"))),col=c("red","blue"))
+dev.off()
 
 
 
@@ -280,11 +304,14 @@ fit.bound1 <- sapply(lambda_m,function(y){
   uniroot.all(fun,c(0,10^3*24),lambda_m=y,gamma="NA")
 })
 
-plot(fit.bound1
+pdf(file="fig10.pdf",width=4,height=4)
+par(cex=0.5)
+plot(unlist(fit.bound1)/24
      ,lambda_m
      ,type="l"
-     ,xlab="Resident virus yeild at apopotosis"
-     ,ylab="Mutant virus budding rate"
+     ,xlab=expression(paste("Resident virus yeild at apopotosis * apopotosis rate (",gamma, alpha,")"))
+     ,ylab=expression(paste("Mutant virus budding rate ( ",lambda["m"],")" ))
      #,main="a"
      ,bty="n")
 
+dev.off()
