@@ -1,45 +1,41 @@
 
+# Model of between cell virus infection without delays
+
 require(deSolve) 
-
 # model in hours
-# amount of free virus here is not influenced by viral cell entry which it should be
-
 #*********************PARAMETERS*************************************
 params <- function(     
   
-  c_death =  1/120          # background cell death rate
+  c_death =  1/120          # background cell death rate, assuming expected cell survival of 5 days
   
   ,double =  24             # 24-48h population doubling time # if population doubles in 24-48hs doubling time = ln(2)/ln(1+r)
   
-  ,inf = 10^-8             # prob virion infection / hr 
+  ,inf = 10^-8              # prob virion infection / hr - 
   
-  ,apoptosis = 1/24         # apoptosis rate
+  ,apoptosis = 1/24         # apoptosis rate - yeild at apoptosis calculated as 1/apoptosis * budding
   
   ,v_death = 0.1            # free virus clearance rate
   
-  ,budding = 10            # budding rate - also used to calculate virus yield at apoptosis
+  ,budding = 10             # budding rate - also used to calculate virus yield at apoptosis
   
-  ,K=10^6
-  
+  #,K=10^6                  # number of susceptible cells at 'carrying capacity' not currently used
 )
 return(as.list(environment()))
 #***************************************************************
 
-
-
-#**************************************************************
+#*****************INITIAL CONDITIONS*****************************
 initial <- c(S = 10^6      # number of susceptible cells at start
              
-             ,I_m = 0      # number of cells infected with mutant virus at start
+             ,I_p = 0      # number of cells infected with persistent virus at start
              
-             ,I_r = 0      # number of cells infected with 'resident' virus at start
+             ,I_a = 0      # number of cells infected with acute virus at start
              
-             ,V_m = (10^6)*0.1      # number of  mutant virions at start MOI of 1:1
+             ,V_p = (10^6)*0.1      # number of  persistent virions at start MOI of 1:1
              
-             ,V_r = (10^6)*0.1      # number of resident virions at start
+             ,V_a = (10^6)*0.1      # number of acute virions at start - assuming as in competition experiment both added in equal amounts
 )
 
-times <- seq(0,72,1)
+times <- seq(0,72,1)               # times to solve at
 #**************************************************************
 
 
@@ -49,20 +45,19 @@ mod <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
   
   r <- exp(log(2)/double) - 1             # calculate cell growth rate given doubling time
   
-  #r <- 1/120
   deriv <- rep(NA,5)
   
  # deriv[1] <- (r-c_death)*S*(1-((S)/K)) - - inf*S*V_m - inf*S*V_r       # include density-dependence in susceptible
   
-  deriv[1] <- r*S - inf*S*V_m - inf*S*V_r - c_death*S      # S
+  deriv[1] <- r*S - inf*S*V_p - inf*S*V_a - c_death*S      # S
   
-  deriv[2] <- inf*S*V_m - c_death*I_m                      # cells infected with mutant budding virus
+  deriv[2] <- inf*S*V_p - c_death*I_p                      # cells infected with persistent virus
   
-  deriv[3] <- inf*S*V_r - c_death*I_r - apoptosis*I_r      # cells infected with resident acute virus
+  deriv[3] <- inf*S*V_a - c_death*I_a - apoptosis*I_a      # cells infected with acute virus
   
-  deriv[4] <- budding*I_m - v_death*V_m                    # free m virus
+  deriv[4] <- budding*I_p - v_death*V_p                    # free persistent virus
   
-  deriv[5] <- (budding*(1/apoptosis))*apoptosis*I_r - v_death*V_r    # free r virus
+  deriv[5] <- (budding*(1/apoptosis))*apoptosis*I_a - v_death*V_a    # free acute virus
   
   return(list(deriv))
 })
@@ -78,48 +73,49 @@ simPop <- function(init=initial, tseq = times, modFunction=mod, parms = params()
 #****************************************************************
 
 
-test <- simPop(parms=params(apoptosis=1/24))
+no.delays <- simPop(parms=params(apoptosis=1/24))
 
 
-#*************PLOT**************************************
+
+
+
+
+#*************PLOTS**************************************
 pdf(file="fig11.pdf",width=5,height=4)
 
 par(mfcol=c(1,2),cex=0.5)
 
-plot(test$time
-     #,log10(test$I_m+1)
-     ,test$I_m
+plot(no.delays$time
+     ,no.delays$I_p
      ,bty="n"
      ,type="l"
      ,col="red"
-     ,ylim=c(0,max(test$I_m))
-    # ,ylim=c(0,250)
+     ,ylim=c(1,max(no.delays$I_p))
      ,xlab="Time (hours) post infection"
      ,ylab=expression(paste( " Number of infected cells"))
      ,xlim=c(0,max(times))
-     # ,ylim=c(1,log10(max(test$S)))
+     ,log="y"
 )
 legend("topright",legend=c("Persistent virus","Acute virus"),bty="n",col=c("red","blue"),lty=1)
 par(new=T)
-plot(test$time
-     #,log10(test$I_r+1)
-     ,test$I_r
+plot(no.delays$time
+     ,no.delays$I_a
      ,bty="n"
      ,type="l"
      ,col="blue"
-     ,ylim=c(0,max(test$I_m))
-     #,xaxt="n"
-     #,yaxt="n"
+     ,ylim=c(1,max(no.delays$I_p))
+     ,xaxt="n"
+     ,yaxt="n"
      ,xlab=" "
      ,ylab=" "
      ,xlim=c(0,max(times))
-     #,ylim=c(1,log10(max(test$S)))
+     ,log="y"
 )
 
 
 
-plot(test$time
-     ,log10(test$V_m)
+plot(no.delays$time
+     ,log10(no.delays$V_p)
      ,bty="n"
      ,type="l"
      ,col="red"
@@ -131,9 +127,9 @@ plot(test$time
      ,ylab=expression(paste('Log'[10], " Virus"))
 )
 par(new=T)
-plot(test$time
-     #,log10(test$S+1)
-     ,log10(test$V_r)
+plot(no.delays$time
+     #,log10(no.delays$S+1)
+     ,log10(no.delays$V_a)
      ,bty="n"
      ,type="l"
      ,col="blue"
@@ -143,7 +139,7 @@ plot(test$time
      ,xlab=" "
      ,ylab=" "
      ,xlim=c(0,max(times))
-     #,ylim=c(1,log10(max(test$S)))
+     #,ylim=c(1,log10(max(no.delays$S)))
 )
 dev.off()
 #**************************************************
