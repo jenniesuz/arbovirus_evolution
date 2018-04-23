@@ -87,7 +87,7 @@ simPop <- function(init=initial, tseq = times, modFunction=mod, parms = params()
 #****************************************************************
 
 
-persist.delay <- simPop(parms=params(delay=1.4))
+persist.delay <- simPop(parms=params(delay=2))
 
 
 

@@ -1,5 +1,5 @@
 
-# Model of between cell virus infection with persistent delay
+# Model of between cell virus infection fixed time to apoptosis
 
 library(PBSddesolve) 
 # model in hours
@@ -71,7 +71,7 @@ mod <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
   
   deriv[4] <- budding*I_p - v_death*V_p  # free persistent virus
   
-  deriv[5] <- (budding*(1/apoptosis))*inf*lag[1]*lag[5]*exp(c_death*apoptosis) - v_death*V_a    # free acute virus
+  deriv[5] <- (budding*(apoptosis))*inf*lag[1]*lag[5]*exp(c_death*apoptosis) - v_death*V_a    # free acute virus
   
   return(list(deriv))
 })

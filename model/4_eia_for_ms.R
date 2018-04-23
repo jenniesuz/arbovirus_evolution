@@ -22,7 +22,6 @@ mutfit <- function(mu_mv=0.1            # mutant virus clearance rate
   return(fit1)
 }
 #******************************************************************************************
-exp(-mu_c*tau)
 
 
 mutfit.delay <- function(mu_mv=0.1            # mutant virus clearance rate
@@ -39,12 +38,16 @@ mutfit.delay <- function(mu_mv=0.1            # mutant virus clearance rate
                    ,gamma = 2400 
                    ,lambda = 100
                    ,tau=2){    
-  fit1 <- (-(alpha_m+mu_mc+mu_mv) + sqrt( (alpha_m+mu_mc+mu_mv)^2 - 4*(alpha_m*mu_mv + mu_mv*mu_mc - (beta_m*(gamma_m*alpha_m+lambda_m)*mu_c*(mu_v + alpha) )/((gamma*alpha + lambda)*beta)) ) ) / 2
-  rho <- exp(-mu_c*tau)
-  part.1 <- (1 / 2*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m + tau_m*lambda_m)
-  part.2 <- (-mu_mc-mu_mv-beta_m*Shat*lambda_m*tau_m+beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda + tau*lambda)
-  part.3 <-
-  fit1 <- 
+  rho_m <- exp(-mu_c*tau_m)
+  
+  part.1 <- (1 / 2*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m + tau_m*lambda_m) ) )
+  
+  part.2 <- -mu_mc-mu_mv-beta_m*Shat*lambda_m*tau_m+beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + tau_m*lambda_m)
+  
+  part.3 <-  -4*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m+tau_m*lambda_m)) *(-beta_m*Shat*lambda_m + mu_mc*mu_mv - beta_m*Shat*rho_m*(mu_mc*gamma_m-lambda_m))
+  
+  part.4 <- ( mu_mc+mu_mv+beta_m*Shat*tau_m*lambda_m - beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + tau_m*lambda_m) )
+  fit1 <- part.1*(part.2+sqrt(part.3 + part.4^2) )
   return(fit1)
 }
 
