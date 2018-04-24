@@ -57,7 +57,7 @@ mod <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
   
   deriv[4] <- budding*I_p - v_death*V_p                    # free persistent virus
   
-  deriv[5] <- (budding*(1/apoptosis))*apoptosis*I_a - v_death*V_a    # free acute virus
+  deriv[5] <- budding/6*I_a + (budding*(1/apoptosis))*apoptosis*I_a - v_death*V_a    # free acute virus
   
   return(list(deriv))
 })
@@ -78,14 +78,14 @@ no.delays <- simPop(parms=params(apoptosis=1/24))
 
 
 library("ggplot2")
-pdf(file="fig_ms_1.pdf",width=5,height=4)
+#pdf(file="fig_ms_1.pdf",width=5,height=4)
 ggplot(no.delays, aes(x=time,y=log10(V_p))) +
  geom_line(aes(x=time,y=log10(V_a),color="Acute")) +
  geom_line(aes(x=time,y=log10(V_p),color="Persistent"),linetype=2) +
  scale_color_manual(name="",values=c("Acute"="black","Persistent"="black")) +
  guides(color=guide_legend(override.aes=list(linetype=c(1,2)))) +
  labs( y=expression(paste("Number of virions (",log[10],")")),x="Time (hours)") 
-dev.off()
+#dev.off()
 
 # 
 # #*************PLOTS**************************************
