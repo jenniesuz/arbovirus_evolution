@@ -25,7 +25,7 @@ params <- function(
   
   ,delay_a = 4
 
- # ,K=10^6
+  ,K=10^6
 )
 return(as.list(environment()))
 #***************************************************************
@@ -78,9 +78,9 @@ mod <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
   
   deriv <- rep(NA,5)
   
- # deriv[1] <- (r-c_death)*S*(1-((S)/K)) - inf*S*V_p - inf*S*V_a      # include density-dependence in susceptible
+  deriv[1] <- (r-c_death)*S*(1-((S)/K)) - inf*S*V_p - inf*S*V_a      # include density-dependence in susceptible
   
-  deriv[1] <- r*S - inf*S*V_p - inf*S*V_a - c_death*S      # S
+ # deriv[1] <- r*S - inf*S*V_p - inf*S*V_a - c_death*S      # S
   
   deriv[2] <- inf*S*V_p - c_death*I_p                      # cells infected with persistent virus
   
@@ -123,24 +123,6 @@ p2 <- ggplot(persist.delay, aes(x=time,y=I_p)) +
 
 grid.arrange(p1, p2, nrow = 1)
 #*************PLOTS**************************************
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 par(mfcol=c(1,2),cex=0.5)
 
 plot(persist.delay$time
