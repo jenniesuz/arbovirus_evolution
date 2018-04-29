@@ -23,6 +23,19 @@ mutfit <- function(mu_mv=0.1            # mutant virus clearance rate
 }
 #******************************************************************************************
 
+mutfit.v <- Vectorize(mutfit)         # enable multiple values to be input for a parameter
+
+lam <- seq(1,100,0.1) 
+lam.mut.a24 <- mutfit.v(lambda_m=lam,alpha_m=0,gamma_m=0,lambda=0,gamma=2400,alpha=1/24)
+mut.fitness.dat <- cbind.data.frame(lam,lam.mut.a24)
+
+#*****************Plot without delay/ fixed time***************************
+#pdf(file="fig_ms_2.pdf",width=5,height=4)
+ggplot(mut.fitness.dat, aes(x=lam,y=lam.mut.a24)) +
+  geom_line(aes(x=lam,y=lam.mut.a24)) +
+  labs(y="Mutant virus fitness", x=expression(paste("Mutant virus budding rate (",italic(lambda)["m"],")")),")")
+
+#*****************************************************************
 
 mutfit.delay <- function(mu_mv=0.1            # mutant virus clearance rate
                    ,mu_mc = 1/120       # mutant virus cell death rate
@@ -40,31 +53,34 @@ mutfit.delay <- function(mu_mv=0.1            # mutant virus clearance rate
                    ,tau=2){    
   rho_m <- exp(-mu_c*tau_m)
   
+  Shat <- mu_v / ( beta*( (lambda - lambda*exp(-mu_c*tau))/mu_mc + gamma*exp(-mu_c*tau) ))   
+  
   part.1 <- (1 / 2*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m + tau_m*lambda_m) ) )
   
-  part.2 <- -mu_mc-mu_mv-beta_m*Shat*lambda_m*tau_m+beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + tau_m*lambda_m)
+  part.2 <- ( -mu_mc - mu_mv - beta_m*Shat*lambda_m*tau_m + beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + tau_m*lambda_m) )
   
   part.3 <-  -4*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m+tau_m*lambda_m)) *(-beta_m*Shat*lambda_m + mu_mc*mu_mv - beta_m*Shat*rho_m*(mu_mc*gamma_m-lambda_m))
   
   part.4 <- ( mu_mc+mu_mv+beta_m*Shat*tau_m*lambda_m - beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + tau_m*lambda_m) )
+  
   fit1 <- part.1*(part.2+sqrt(part.3 + part.4^2) )
   return(fit1)
 }
 
 #************calculate for without delay/ fixed time*********************
-mutfit.v <- Vectorize(mutfit)         # enable multiple values to be input for a parameter
+mutfit.delay.v <- Vectorize(mutfit.delay)         # enable multiple values to be input for a parameter
 
 lam <- seq(1,100,0.1) 
-lam.mut.a24 <- mutfit.v(lambda_m=lam,alpha_m=0,gamma_m=0,lambda=0,gamma=2400,alpha=1/24)
+lam.mut.a24 <- mutfit.delay.v(lambda_m=lam,f.alpha_m=24,gamma_m=0,lambda=0,gamma=2400,f.alpha=24)
 mut.fitness.dat <- cbind.data.frame(lam,lam.mut.a24)
 
 
 #*****************Plot without delay/ fixed time***************************
-pdf(file="fig_ms_2.pdf",width=5,height=4)
+#pdf(file="fig_ms_2.pdf",width=5,height=4)
 ggplot(mut.fitness.dat, aes(x=lam,y=lam.mut.a24)) +
   geom_line(aes(x=lam,y=lam.mut.a24)) +
   labs(y="Mutant virus fitness", x=expression(paste("Mutant virus budding rate (",italic(lambda)["m"],")")),")")
-dev.off()
+#dev.off()
 #*********************************************************************************************
 
 # re-write mutant virus fitness function for input to unitroot.all function
