@@ -1,4 +1,4 @@
-
+source("1a_ode_model.R")
 # Model of between cell virus infection with persistent delay
 library("ggplot2")
 library("gridExtra")
@@ -21,9 +21,9 @@ params <- function(
   
  #  ,budding_a = 10           #
   
-  ,delay_p = 4              # delay in budding rate for persistent virus
+  ,delay_p = 12              # delay in budding rate for persistent virus
   
-  ,delay_a = 4
+  ,delay_a = 12
 
  # ,K=10^6
 )
@@ -37,23 +37,21 @@ initial <- c(S = 10^6      # number of susceptible cells at start
              
              ,I_a = 0      # number of cells infected with acute virus at start
              
-             ,V_p = (10^6)*0.01      # number of  persistent virions at start MOI of 1:1
+             ,V_p = (10^6)*0.1      # number of  persistent virions at start MOI of 1:1
              
-             ,V_a = (10^6)*0.01      # number of acute virions at start - assuming as in competition experiment both added in equal amounts
+             ,V_a = (10^6)*0.1      # number of acute virions at start - assuming as in competition experiment both added in equal amounts
 )
 
 times <- seq(0,72,1)               # times to solve at
 #**************************************************************
 
-
-
 #****************MODEL*****************************************
 mod <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
-  budding_p <- exp(delay_p/2)
+  budding_p <- 10 #exp(delay_p/2)
   
-  rep <- exp(delay_a/2)
-  budding_a <- (rep/5)
-  yield <- (apoptosis)*(rep/5)*4
+  rep <- 10 #exp(delay_a/2)
+  budding_a <- 0 #(rep/5)
+  yield <- rep*apoptosis #(apoptosis)*(rep/5)*4
   
   tlag_a <- tt - delay_a                    # previous time-point
   if (tlag_a <= 0){
@@ -83,7 +81,7 @@ mod <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
   
   deriv[4] <- budding_p*(lag_p[2] - lag_p[2]*c_death*delay_p) - v_death*V_p  # free persistent virus
   
-  deriv[5] <-  budding_a*(lag_a[3] - lag_a[3]*c_death*delay_a) + yield*inf*lag_a[1]*lag_a[5]*exp(-c_death*apoptosis) - v_death*V_a    # free acute virus
+  deriv[5] <-  yield*inf*lag_a[1]*lag_a[5]*exp(-c_death*apoptosis) - v_death*V_a #+budding_a*(lag_a[3] - lag_a[3]*c_death*delay_a)    # free acute virus
   
   return(list(deriv))
 })
@@ -99,84 +97,42 @@ simPop <- function(init=initial, tseq = times, modFunction=mod, parms = params()
 # apoptosis can't equal 0
 persist.delay <- simPop(parms=params(delay_a=8,delay_p=4,apoptosis=1/12))
 
-par(mfcol=c(1,2))
-p1 <- ggplot(persist.delay, aes(x=time,y=log10(V_p))) +
-  geom_line(aes(x=time,y=log10(V_a),color="Acute")) +
-  geom_line(aes(x=time,y=log10(V_p),color="Persistent"),linetype=2) +
-  scale_color_manual(name="",values=c("Acute"="black","Persistent"="black")) +
-  guides(color=guide_legend(override.aes=list(linetype=c(1,2)))) +
+combined.mods <- cbind.data.frame(time=c(no.delays$time,persist.delay$time)
+                                  ,p=c(no.delays$V_p,persist.delay$V_p)
+                                  ,a=c(no.delays$V_a,persist.delay$V_a)
+                                  ,mod=c(rep("Model 1",length(no.delays$time)),rep("Model 2",length(no.delays$time)))
+                                 )
+
+pdf(file="fig_ms_1.pdf",width=5,height=4)
+ggplot(combined.mods, aes(x=time,y=p)) +
+  geom_line(aes(x=time,y=log10(p))) +
+  geom_line(aes(x=time,y=log10(a)),linetype=2) +
+  facet_wrap( ~ mod,labeller = label_wrap_gen(width=30,multi_line=FALSE)) +
   labs( y=expression(paste("Number of virions (",log[10],")")),x="Time (hours)") +
   theme(legend.position="none")
+dev.off()
 
-p2 <- ggplot(persist.delay, aes(x=time,y=I_p)) +
-  geom_line(aes(x=time,y=I_a,color="Acute")) +
-  geom_line(aes(x=time,y=I_p,color="Persistent"),linetype=2) +
-  scale_color_manual(name="",values=c("Acute"="black","Persistent"="black")) +
-  guides(color=guide_legend(override.aes=list(linetype=c(1,2)))) +
-  labs( y="Number of infected cells",x="Time (hours)") +
-  theme(legend.position="none")
 
-grid.arrange(p1, p2, nrow = 1)
+#p2 <- ggplot(persist.delay, aes(x=time,y=log10(V_p))) +
+#  geom_line(aes(x=time,y=log10(V_a),color="Acute")) +
+#  geom_line(aes(x=time,y=log10(V_p),color="Persistent"),linetype=2) +
+#  scale_color_manual(name="",values=c("Acute"="black","Persistent"="black")) +
+#  guides(color=guide_legend(override.aes=list(linetype=c(1,2)))) +
+#  labs( y=expression(paste("Number of virions (",log[10],")")),x="Time (hours)") +
+#  theme(legend.position="none")
+
+#p2 <- ggplot(persist.delay, aes(x=time,y=I_p)) +
+#  geom_line(aes(x=time,y=I_a,color="Acute")) +
+#  geom_line(aes(x=time,y=I_p,color="Persistent"),linetype=2) +
+#  scale_color_manual(name="",values=c("Acute"="black","Persistent"="black")) +
+#  guides(color=guide_legend(override.aes=list(linetype=c(1,2)))) +
+#  labs( y="Number of infected cells",x="Time (hours)") +
+#  theme(legend.position="none")
+
+#grid.arrange(p1, p2, nrow = 1)
 #*************PLOTS**************************************
+#pdf(file="fig_ms_1.pdf",width=5,height=4)
+#grid.arrange(p1, p2, nrow = 1)
 
-
-par(mfcol=c(1,2),cex=0.5)
-
-plot(persist.delay$time
-     ,persist.delay$I_p
-     ,bty="n"
-     ,type="l"
-     ,col="red"
-     ,ylim=c(1,max(persist.delay$I_p))
-     ,xlab="Time (hours) post infection"
-     ,ylab=expression(paste( " Number of infected cells"))
-     ,xlim=c(0,max(times))
-     ,log="y"
-)
-legend("topright",legend=c("Persistent virus","Acute virus"),bty="n",col=c("red","blue"),lty=1)
-par(new=T)
-plot(persist.delay$time
-     ,persist.delay$I_a
-     ,bty="n"
-     ,type="l"
-     ,col="blue"
-     ,ylim=c(1,max(persist.delay$I_p))
-     ,xaxt="n"
-     ,yaxt="n"
-     ,xlab=" "
-     ,ylab=" "
-     ,xlim=c(0,max(times))
-     ,log="y"
-)
-
-
-
-plot(persist.delay$time
-     ,log10(persist.delay$V_p)
-     ,bty="n"
-     ,type="l"
-     ,col="red"
-     # ,log="y"
-     ,ylim=c(2,10)
-     ,main=params()$g
-     ,xlim=c(0,max(times))
-     ,xlab="Time (hours) post infection"
-     ,ylab=expression(paste('Log'[10], " Virus"))
-)
-par(new=T)
-plot(persist.delay$time
-     #,log10(persist.delay$S+1)
-     ,log10(persist.delay$V_a)
-     ,bty="n"
-     ,type="l"
-     ,col="blue"
-     ,ylim=c(2,10)
-     #,xaxt="n"
-     #,yaxt="n"
-     ,xlab=" "
-     ,ylab=" "
-     ,xlim=c(0,max(times))
-     #,ylim=c(1,log10(max(persist.delay$S)))
-)
-#**************************************************
+#dev.off()
 
