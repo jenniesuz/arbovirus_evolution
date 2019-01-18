@@ -15,17 +15,22 @@ params <- function(
   
   ,v_death = 0.1            # free virus clearance rate
   
-  ,apoptosis = 24         # apoptosis rate - yeild at apoptosis calculated as 1/apoptosis * budding
+  ,apoptosis = 24           # apoptosis 
   
- #  ,budding_p = 10           # budding rate - also used to calculate virus yield at apoptosis
+  ,apoptosis_m = 24
   
- #  ,budding_a = 10           #
+  ,budding = 10           # budding rate - also used to calculate virus yield at apoptosis
   
-  ,delay_p = 12              # delay in budding rate for persistent virus
+  ,budding_m = 10           #
   
-  ,delay_a = 12
+  ,delay = 12              # delay in budding rate for persistent virus
+  
+  ,delay_m = 12
+  
+  ,yield = 10*24
+  
+  ,yield_m = 10*24
 
- # ,K=10^6
 )
 return(as.list(environment()))
 #***************************************************************
@@ -33,13 +38,13 @@ return(as.list(environment()))
 #*****************INITIAL CONDITIONS*****************************
 initial <- c(S = 10^6      # number of susceptible cells at start
              
-             ,I_p = 0      # number of cells infected with persistent virus at start
+             ,I = 0      # number of cells infected with virus at start
              
-             ,I_a = 0      # number of cells infected with acute virus at start
+             ,I_m = 0      # number of cells infected with mutant virus at start
              
-             ,V_p = (10^6)*0.1      # number of  persistent virions at start MOI of 1:1
+             ,V = (10^6)*0.1      # number of  persistent virions at start MOI of 1:1
              
-             ,V_a = (10^6)*0.1      # number of acute virions at start - assuming as in competition experiment both added in equal amounts
+             ,V_m = (10^6)*0.1      # number of acute virions at start - assuming as in competition experiment both added in equal amounts
 )
 
 times <- seq(0,72,1)               # times to solve at
@@ -47,41 +52,47 @@ times <- seq(0,72,1)               # times to solve at
 
 #****************MODEL*****************************************
 mod <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
-  budding_p <- 10 #exp(delay_p/2)
-  
-  rep <- 10 #exp(delay_a/2)
-  budding_a <- 0 #(rep/5)
-  yield <- rep*apoptosis #(apoptosis)*(rep/5)*4
-  
-  tlag_a <- tt - delay_a                    # previous time-point
-  if (tlag_a <= 0){
-    lag_a <- c(0,0,0,0,0)               # if before time 1 then use initial conditions
+ tlag <- tt - delay                    # previous time-point
+  if (tlag <= 0){
+    lag <- c(0,0,0,0,0)                # if before time 1 then use initial conditions
   }else {
-    lag_a <- pastvalue(tlag_a)  
+    lag <- pastvalue(tlag)  
   }
   
-  tlag_p <- tt - delay_p                    # previous time-point
-  if (tlag_p <= 0){
-    lag_p <- c(0,0,0,0,0)               # if before time 1 then use initial conditions
+  tlag_m <- tt - delay_m                   # previous time-point
+  if (tlag_m <= 0){
+    lag_m <- c(0,0,0,0,0)                # if before time 1 then use initial conditions
   }else {
-    lag_p <- pastvalue(tlag_p)  
+    lag_m <- pastvalue(tlag_m)  
+  }
+  
+  tlag1 <- tt - apoptosis                    # previous time-point
+  if (tlag1 <= 0){
+    lag1 <- c(0,0,0,0,0)                # if before time 1 then use initial conditions
+  }else {
+    lag1 <- pastvalue(tlag1)  
+  }
+  
+  tlag1_m <- tt - apoptosis_m                   # previous time-point
+  if (tlag1_m <= 0){
+    lag1_m <- c(0,0,0,0,0)                # if before time 1 then use initial conditions
+  }else {
+    lag1_m <- pastvalue(tlag1_m)  
   }
   
   r <- exp(log(2)/double) - 1             # calculate cell growth rate given doubling time
   
   deriv <- rep(NA,5)
   
-#  deriv[1] <- (r-c_death)*S*(1-((S)/K)) - inf*S*V_p - inf*S*V_a      # include density-dependence in susceptible
+  deriv[1] <- r*S - inf*S*V - inf*S*V_m - c_death*S      # S
   
-  deriv[1] <- r*S - inf*S*V_p - inf*S*V_a - c_death*S      # S
+  deriv[2] <- inf*S*V - c_death*I - inf*lag1[1]*lag1[5]*exp(-c_death*apoptosis)                     
   
-  deriv[2] <- inf*S*V_p - c_death*I_p                      # cells infected with persistent virus
+  deriv[3] <- inf*S*V_m - c_death*I_m - inf*lag1_m[1]*lag1_m[5]*exp(-c_death*apoptosis_m)  
   
-  deriv[3] <- inf*S*V_a - c_death*I_a - inf*lag_a[1]*lag_a[5]*exp(-c_death*apoptosis)    # cells infected with acute virus
+  deriv[4] <- budding*(lag[2] - lag[2]*c_death*delay) + yield*inf*lag1[1]*lag1[5]*exp(-c_death*apoptosis) - v_death*V 
   
-  deriv[4] <- budding_p*(lag_p[2] - lag_p[2]*c_death*delay_p) - v_death*V_p  # free persistent virus
-  
-  deriv[5] <-  yield*inf*lag_a[1]*lag_a[5]*exp(-c_death*apoptosis) - v_death*V_a #+budding_a*(lag_a[3] - lag_a[3]*c_death*delay_a)    # free acute virus
+  deriv[5] <-  budding*(lag_m[2] - lag_m[2]*c_death*delay_m) + yield_m*inf*lag1_m[1]*lag1_m[5]*exp(-c_death*apoptosis_m) - v_death*V_m 
   
   return(list(deriv))
 })
@@ -93,6 +104,32 @@ simPop <- function(init=initial, tseq = times, modFunction=mod, parms = params()
   return(simDat)
 }
 #****************************************************************
+
+
+delays <- simPop(parms=params(c_death=1/120
+                                 ,apoptosis=24
+                                 ,yield=10*24
+                                 ,budding=0
+                                 ,budding_m=10
+                                 ,delay=0
+                                 ,delay_m=3
+                                 ,apoptosis_m=0
+                                 ,yield_m=0))
+
+library("ggplot2")
+#pdf(file="fig_ms_1.pdf",width=5,height=4)
+p1<-ggplot(delays, aes(x=time,y=log10(V_m))) +
+  geom_line(aes(x=time,y=log10(V))) +
+  geom_line(aes(x=time,y=log10(V_m)),linetype=2) +
+  scale_color_manual(name="",values=c("resident"="black","mutant"="black")) +
+  labs(y=expression(paste("Number of virions (",log[10],")")),x="Time (hours)") +
+  theme_set(theme_bw())  +
+  theme
+p1
+
+
+
+
 
 # apoptosis can't equal 0
 persist.delay <- simPop(parms=params(delay_a=8,delay_p=4,apoptosis=1/12))
