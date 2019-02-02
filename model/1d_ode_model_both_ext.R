@@ -42,12 +42,12 @@ initial <- c(S = 10^6      # number of susceptible cells at start
              
              ,I_m = 0      # number of cells infected with mutant virus at start
              
-             ,V = (10^6)*0.1      # number of  persistent virions at start MOI of 1:1
+             ,V =  (10^6)*0.1      # number of  persistent virions at start MOI of 1:1
              
              ,V_m = (10^6)*0.1      # number of acute virions at start - assuming as in competition experiment both added in equal amounts
 )
 
-times <- seq(0,72,1)               # times to solve at
+times <- seq(0,240,1)               # times to solve at
 #**************************************************************
 
 #****************MODEL*****************************************
@@ -86,13 +86,13 @@ mod <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
   
   deriv[1] <- r*S - inf*S*V - inf*S*V_m - c_death*S      # S
   
-  deriv[2] <- inf*S*V - c_death*I - inf*lag1[1]*lag1[5]*exp(-c_death*apoptosis)                     
+  deriv[2] <- inf*S*V - c_death*I - inf*lag1[1]*lag1[4]*exp(-c_death*apoptosis)                     
   
   deriv[3] <- inf*S*V_m - c_death*I_m - inf*lag1_m[1]*lag1_m[5]*exp(-c_death*apoptosis_m)  
   
-  deriv[4] <- budding*(lag[2] - lag[2]*c_death*delay) + yield*inf*lag1[1]*lag1[5]*exp(-c_death*apoptosis) - v_death*V 
+  deriv[4] <- budding*(lag[2] - lag[2]*c_death*delay) + yield*inf*lag1[1]*lag1[4]*exp(-c_death*apoptosis) - v_death*V 
   
-  deriv[5] <-  budding*(lag_m[2] - lag_m[2]*c_death*delay_m) + yield_m*inf*lag1_m[1]*lag1_m[5]*exp(-c_death*apoptosis_m) - v_death*V_m 
+  deriv[5] <-  budding*(lag_m[3] - lag_m[3]*c_death*delay_m) + yield_m*inf*lag1_m[1]*lag1_m[5]*exp(-c_death*apoptosis_m) - v_death*V_m 
   
   return(list(deriv))
 })
@@ -106,15 +106,16 @@ simPop <- function(init=initial, tseq = times, modFunction=mod, parms = params()
 #****************************************************************
 
 
-delays <- simPop(parms=params(c_death=1/120
-                                 ,apoptosis=24
-                                 ,yield=10*24
+delays <- simPop(tseq= seq(0,120,100)
+                 ,parms=params(c_death=1/120
+                                 ,apoptosis=2
+                                 ,yield=10
                                  ,budding=0
-                                 ,budding_m=10
-                                 ,delay=0
-                                 ,delay_m=3
-                                 ,apoptosis_m=0
-                                 ,yield_m=0))
+                                 ,budding_m=0
+                                 ,delay=2
+                                 ,delay_m=60
+                                 ,apoptosis_m=60
+                                 ,yield_m=10))
 
 library("ggplot2")
 #pdf(file="fig_ms_1.pdf",width=5,height=4)

@@ -71,47 +71,33 @@ do.dl.v <- Vectorize(do.dg)
 
 #*******************************With delays******************************************
 # derivative w.r.t gamma
-Deriv(expression((-mu_i - mu_v - beta*S*lambda*tau.b + beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda) ) +
-          sqrt((-4*(1 + beta*S*sigma*tau.a*(gamma + tau.b*lambda))*(-beta*S*lambda + mu_i*mu_v - beta*S*sigma*(mu_i*gamma - lambda)))
-           + (mu_i + mu_v + beta*S*tau.b*lambda - beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda))^2)/
-          ( 2*(1 + beta*S*tau.a*sigma*(gamma+tau.b*lambda)))),"gamma")
+Deriv(expression(  (- (mu_c + mu_v - gamma*beta*S*exp(-mu_c*tau.a) + gamma*beta*S*exp(-mu_c*tau.a)*tau.a*mu_c  + lambda*exp(-mu_c*tau.b)*tau.b*beta*S - lambda*exp(-mu_c*tau.b)*beta*S*exp(-mu_c*tau.a)*tau.a  - lambda*exp(-mu_c*tau.b)*tau.b*beta*S*exp(-mu_c*tau.a)) + sqrt((mu_c + mu_v - gamma*beta*S*exp(-mu_c*tau.a) + gamma*beta*S*exp(-mu_c*tau.a)*tau.a*mu_c  + lambda*exp(-mu_c*tau.b)*tau.b*beta*S - lambda*exp(-mu_c*tau.b)*beta*S*exp(-mu_c*tau.a)*tau.a  - lambda*exp(-mu_c*tau.b)*tau.b*beta*S*exp(-mu_c*tau.a))^2 - 4*(1  + gamma*beta*S*exp(-mu_c*tau.a)*tau.a + beta*S*exp(-mu_c*tau.a)*tau.a*lambda*exp(-mu_c*tau.b)*tau.b)*(mu_c*mu_v - gamma*beta*S*exp(-mu_c*tau.a)*mu_c - lambda*exp(-mu_c*tau.b)*beta*S + lambda*exp(-mu_c*tau.b)*beta*S*exp(-mu_c*tau.a))))/ (2*(1  + gamma*beta*S*exp(-mu_c*tau.a)*tau.a + beta*S*exp(-mu_c*tau.a)*tau.a*lambda*exp(-mu_c*tau.b)*tau.b))
+),"gamma")
 
 # derivative w.r.t lambda
-Deriv(expression((-mu_i - mu_v - beta*S*lambda*tau.b + beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda) ) +
-                   sqrt((-4*(1 + beta*S*sigma*tau.a*(gamma + tau.b*lambda))*(-beta*S*lambda + mu_i*mu_v - beta*S*sigma*(mu_i*gamma - lambda)))
-                        + (mu_i + mu_v + beta*S*tau.b*lambda - beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda))^2)/
-                   ( 2*(1 + beta*S*tau.a*sigma*(gamma+tau.b*lambda)))),"lambda")
+Deriv(expression( ),"lambda")
 
 # derivative w.r.t beta
-Deriv(expression((-mu_i - mu_v - beta*S*lambda*tau.b + beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda) ) +
-                   sqrt((-4*(1 + beta*S*sigma*tau.a*(gamma + tau.b*lambda))*(-beta*S*lambda + mu_i*mu_v - beta*S*sigma*(mu_i*gamma - lambda)))
-                        + (mu_i + mu_v + beta*S*tau.b*lambda - beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda))^2)/
-                   ( 2*(1 + beta*S*tau.a*sigma*(gamma+tau.b*lambda)))),"beta")
+Deriv(expression( ),"beta")
 
 # derivative w.r.t tau.a
-Deriv(expression((-mu_i - mu_v - beta*S*lambda*tau.b + beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda) ) +
-                   sqrt((-4*(1 + beta*S*sigma*tau.a*(gamma + tau.b*lambda))*(-beta*S*lambda + mu_i*mu_v - beta*S*sigma*(mu_i*gamma - lambda)))
-                        + (mu_i + mu_v + beta*S*tau.b*lambda - beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda))^2)/
-                   ( 2*(1 + beta*S*tau.a*sigma*(gamma+tau.b*lambda)))),"tau.a")
+Deriv(expression( ),"tau.a")
 
 # derivative w.r.t tau.b
-Deriv(expression((-mu_i - mu_v - beta*S*lambda*tau.b + beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda) ) +
-                   sqrt((-4*(1 + beta*S*sigma*tau.a*(gamma + tau.b*lambda))*(-beta*S*lambda + mu_i*mu_v - beta*S*sigma*(mu_i*gamma - lambda)))
-                        + (mu_i + mu_v + beta*S*tau.b*lambda - beta*S*sigma*(gamma - tau.a*mu_i*gamma + tau.a*lambda + tau.b*lambda))^2)/
-                   ( 2*(1 + beta*S*tau.a*sigma*(gamma+tau.b*lambda)))),"tau.b")
-
-
-#*******Force of selection with respect to gamma********************
-do.dg <- function(gamma= 50
-                  ,lambda=0
-                  ,beta = 10^-6
-                  ,tau.a=24
-                  ,tau.b=24
-                  ,S = 10^6
-                  ,mu_i = 1/120
-                  ,mu_v = 0.1){
-  return(  ( alpha*beta*S / sqrt( (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda ))  ) )
-  )
-}
-do.dg.v <- Vectorize(do.dg)
-#***************************************************************
+Deriv(expression( ),"tau.b")
+# 
+# 
+# #*******Force of selection with respect to gamma********************
+# do.dg <- function(gamma= 50
+#                   ,lambda=0
+#                   ,beta = 10^-6
+#                   ,tau.a=24
+#                   ,tau.b=24
+#                   ,S = 10^6
+#                   ,mu_i = 1/120
+#                   ,mu_v = 0.1){
+#   return(  ( alpha*beta*S / sqrt( (mu_i + mu_v + alpha)^2 - 4*(mu_i*mu_v + mu_v*alpha - beta*S*(gamma*alpha+lambda ))  ) )
+#   )
+# }
+# do.dg.v <- Vectorize(do.dg)
+# #***************************************************************

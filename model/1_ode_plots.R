@@ -12,8 +12,8 @@ theme <-   theme(panel.border = element_blank()
                  ,axis.text=element_text(size=8)
                  ,legend.key.size = unit(0.8,"line")
                  ,legend.background = element_blank()
-                 ,legend.text=element_text(size=8)
-                 ,legend.position =c(0.83,0.5)
+                 ,legend.text=element_text(size=7)
+                 ,legend.position =c(0.2,0.2)
                  ,legend.title = element_blank()
 )
 
@@ -34,17 +34,17 @@ cols <- c("#e41a1c"
 
 
 #****************run models**********************
-no.delays <- simPop.nd(parms=params.nd(apoptosis=1/24
+no.delays <- simPop.nd(parms=params.nd(apoptosis=1/24 # see 1a r script
                                      ,yield=6000
-                                     ,budding=200
-                                     ,inf=10^-9))
+                                     ,budding=500
+                                     ,inf=10^-9
+                                     ,c_death=1/240))
 
 
-delays <- simPop.b(parms=params.b(delay_a=24
+delays <- simPop.b(parms=params.b(delay_a=24        # see 1d r script
                                      ,delay_p=24
-                                     ,budding_p=100
+                                     ,budding_p=500
                                      ,yield_a=6000
-                                     ,apoptosis=24
                                      ,v_death=0.1
                                      ,c_death=1/120
                                      ,inf=10^-9))
@@ -58,10 +58,10 @@ combined.mods <- cbind.data.frame(time=c(no.delays$time,no.delays$time,delays$ti
                                                    ,rep("Acute",length(no.delays$time))
                                                    ,rep("Persistent",length(no.delays$time))
                                                    ,rep("Acute",length(no.delays$time)))
-                                  ,mod=c(rep("No delays",length(no.delays$time)*2),rep("Budding delay & fixed time to apoptosis",length(no.delays$time)*2))
+                                  ,mod=c(rep("a) No delays",length(no.delays$time)*2),rep("b) Budding delay & fixed time to apoptosis",length(no.delays$time)*2))
 )
 
-#pdf(file="fig_ms_1.pdf",width=5,height=4)
+#pdf(file="fig_1.pdf",width=5,height=4)
 ggplot(combined.mods, aes(x=time,y=results)) +
   geom_line(aes(x=time,y=log10(results),color=virustype)) +
   scale_color_manual(values=as.character(cols)) +
@@ -70,4 +70,5 @@ ggplot(combined.mods, aes(x=time,y=results)) +
   theme_set(theme_bw())  +
   theme
 #dev.off()
+
 

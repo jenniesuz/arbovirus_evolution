@@ -1,7 +1,7 @@
 library(rootSolve) 
 #******************Evolutionary invasion analysis**************************
 
-#***********************COMBINED MODEL ACUTE AND PERSISTENT INFECTION*************************************
+#***********************COMBINED MODEL - ACUTE AND PERSISTENT INFECTION*************************************
 
 #************* mutant virus fitness function without delay in budding or fixed time to apoptosis************
 mutfit <- function(mu_mv=0.1                  # mutant virus clearance rate
@@ -26,40 +26,42 @@ mutfit <- function(mu_mv=0.1                  # mutant virus clearance rate
 
 mutfit.delay <- function(mu_mv=0.1            # mutant virus clearance rate
                          ,mu_mc = 1/120       # mutant virus cell death rate
-                         ,beta_m = 10^-9     # mutant probability of infecting susceptible cells
+                         ,beta_m = 10^-9      # mutant probability of infecting susceptible cells
                          ,gamma_m = 2400      # mutant virus yeild at apoptosis
-                         ,lambda_m = 100
-                         ,f.alpha_m = 24      # fixed mutant virus time to apoptosis
-                         ,b_delay_m = 2           # delay in budding
+                         ,lambda_m = 100      # mutant virus budding rate
+                         ,tau_a_m = 24      # mutant virus fixed time to apoptosis
+                         ,tau_b_m = 2       # delay in budding
                          ,mu_v=0.1            # resident virus clearance rate  
                          ,mu_c = 1/120        # resident infected cell death rate 
                          ,beta = 10^-9        # resident probability of infecting susceptible cells
-                         ,f.alpha = 24          # resident virus fixed time to apoptosis
+                         ,tau_a = 24        # resident virus fixed time to apoptosis
                          ,gamma = 2400 
-                         ,lambda = 100
-                         ,b_delay=2){    
-  rho_m <- exp(-mu_mc*f.alpha_m)
-  rhob_m <- exp(-mu_mc*b_delay_m)
-  rho  <- exp(-mu_c*f.alpha)
-  rhob <- exp(-mu_c*b_delay)
+                         ,lambda = 0        
+                         ,tau_b=2
+                         ,r=0.03){            # susceptible cell growth rate  
+  sigma_m <- exp(-mu_mc*tau_a_m)
+  sigmab_m <- exp(-mu_mc*tau_b_m)
+  sigma  <- exp(-mu_c*tau_a)
+  sigmab <- exp(-mu_c*tau_b)
   
-  #Shat <- (mu_v / ( beta*( (lambda - lambda*exp(-mu_c*f.alpha))/mu_c + gamma*exp(-mu_c*f.alpha) ))  ) 
-  Shat <- ( mu_c*mu_v*(0.03-mu_c) ) / ( beta*gamma*rho*mu_c*(0.03+mu_c) + ( beta*lambda*rhob*(0.03*rho-mu_c*rho-0.03-mu_c) ) )
-  #part.1 <- (2*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m + b_delay_m*lambda_m)) )
+  #Shat <- (mu_v*mu_c) / ( beta*(sigmab*lambda -sigma*sigmab*lambda + gamma*sigma))
+  Shat <-   ( mu_v*mu_c / beta ) / ( (lambda*sigmab*(  - sigma) + mu_c*gamma*sigma) / mu_c) 
   
-  #part.2 <- (- mu_mc - mu_mv - beta_m*Shat*lambda_m*b_delay_m + beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + b_delay_m*lambda_m))
+  a <- (1  + gamma_m*beta_m*Shat*sigma_m*tau_a_m + beta_m*Shat*sigma_m*tau_a_m*lambda_m*sigmab_m*tau_b_m)
+  b <- (mu_mc + mu_mv - gamma_m*beta_m*Shat*sigma_m + gamma_m*beta_m*Shat*sigma_m*tau_a_m*mu_mc  + lambda_m*sigmab_m*tau_b_m*beta_m*Shat - lambda_m*sigmab_m*beta_m*Shat*sigma_m*tau_a_m  - lambda_m*sigmab_m*tau_b_m*beta_m*Shat*sigma_m)
+  c <- (mu_mc*mu_mv - gamma_m*beta_m*Shat*sigma_m*mu_mc - lambda_m*sigmab_m*beta_m*Shat + lambda_m*sigmab_m*beta_m*Shat*sigma_m)
+  fit1 <- (- b + sqrt(b^2 - 4*a*c))/ (2*a)
   
-  #part.3 <-  (-4*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m+b_delay_m*lambda_m)) *(-beta_m*Shat*lambda_m + mu_mc*mu_mv - beta_m*Shat*rho_m*(mu_mc*gamma_m-lambda_m)))
+  # assuming no death for virus budding delay
+#  Shat <-   (mu_v*mu_c) / (beta * (lambda*(-sigma*r-sigma*mu_c) + gamma*sigma ) )
+
+#  a <- (1 + beta_m*Shat*tau_a_m*sigma_m*(gamma_m+tau_b_m*lambda_m))
+#  b <- (mu_mc + mu_mv + beta_m*Shat*lambda_m*tau_b_m - beta_m*Shat*sigma_m*(gamma_m - gamma_m*tau_a_m*mu_mc + lambda_m*tau_a_m +lambda_m*tau_b_m))
+#  c <- (mu_mc*mu_mv - beta_m*Shat*lambda_m - beta_m*Shat*sigma_m*(gamma_m*mu_mc - lambda_m))
+#  fit1 <- (- b + sqrt(b^2 - 4*a*c))/ (2*a)
   
-  #part.4 <-  (mu_mc+mu_mv+beta_m*Shat*b_delay_m*lambda_m - beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + b_delay_m*lambda_m)) 
-  
-  #fit1 <- (part.2+sqrt(part.4^2 + part.3) )/part.1
-  
-  a <- (1 + beta_m*Shat*f.alpha_m*rho_m*(gamma_m+b_delay_m*rhob_m*lambda_m))
-  b <- (mu_mc + mu_mv + beta_m*Shat*(-gamma_m*rho_m + gamma_m*rho_m*f.alpha_m*mu_mc + lambda_m*b_delay_m*rhob_m - rho_m*rhob_m*b_delay_m - lambda_m*f.alpha_m*rhob_m*rho_m))
-  c <- (mu_mc*mu_mv + beta_m*Shat*(- gamma_m*rho_m*mu_mc - lambda_m*rhob_m + rho_m*lambda*rhob_m))
-  fit1 <- (- b + sqrt(b^2 - 4*a*c))/2*a
- #return(fit1)
+    
+ return(fit1)
 
 }
 #********************************vectorize************************************
@@ -100,34 +102,37 @@ fun.delay <- function(x
                 ,beta_m = 10^-6      # mutant probability of infecting susceptible cells
                 ,gamma_m = 0      # mutant virus yeild at apoptosis
                 ,lambda_m = 100
-                ,f.alpha_m = 2000      # mutant virus apoptosis rate
-                ,b_delay_m = 12  
+                ,tau_a_m = 2000      # mutant virus apoptosis rate
+                ,tau_b_m = 12  
                 ,mu_v=0.1            # resident virus clearance rate  
                 ,mu_c = 1/120        # resident infected cell death rate 
                 ,beta = 10^-6        # resident probability of infecting susceptible cells
-                ,f.alpha = 24        # resident virus apoptosis rate
+                ,tau_a = 24        # resident virus apoptosis rate
                 ,gamma = 2400
                 ,lambda = 0
-                ,b_delay = 2
+                ,tau_b = 2
+                ,r=0.03
 ){
   
   if(gamma=="NA"){
     
     gamma_m <- 0
-    f.alpha_m <- 1000
-    rho_m <- exp(-mu_mc*f.alpha_m)
+    tau_a_m <- 1000
+    sigma_m <- exp(-mu_mc*tau_a_m)
+    sigmab_m <- exp(-mu_mc*tau_b_m)
+    sigma  <- exp(-mu_c*tau_a)
+    sigmab <- exp(-mu_c*tau_b)
     
-    Shat <- mu_v / ( beta*( (lambda - lambda*exp(-mu_c*f.alpha))/mu_c + x*exp(-mu_c*f.alpha) ))   
+    #Shat <- (mu_v*mu_c) / ( beta*(sigmab*lambda -sigma*sigmab*lambda + gamma*sigma))
+    Shat <-   ( mu_v*mu_c / beta ) / ( (lambda*sigmab*(  - sigma) + mu_c*x*sigma) / mu_c) 
     
-    part.1 <- 1 / 2*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m + b_delay_m*lambda_m) ) 
+    a <- (1  + gamma_m*beta_m*Shat*sigma_m*tau_a_m + beta_m*Shat*sigma_m*tau_a_m*lambda_m*sigmab_m*tau_b_m)
+    b <- (mu_mc + mu_mv - gamma_m*beta_m*Shat*sigma_m + gamma_m*beta_m*Shat*sigma_m*tau_a_m*mu_mc  + lambda_m*sigmab_m*tau_b_m*beta_m*Shat - lambda_m*sigmab_m*beta_m*Shat*sigma_m*tau_a_m  - lambda_m*sigmab_m*tau_b_m*beta_m*Shat*sigma_m)
+    c <- (mu_mc*mu_mv - gamma_m*beta_m*Shat*sigma_m*mu_mc - lambda_m*sigmab_m*beta_m*Shat + lambda_m*sigmab_m*beta_m*Shat*sigma_m)
+    fit1 <- (- b + sqrt(b^2 - 4*a*c))/ (2*a)
     
-    part.2 <- - mu_mc - mu_mv - beta_m*Shat*lambda_m*b_delay_m + beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + b_delay_m*lambda_m)
     
-    part.3 <-  4*(1+beta_m*Shat*f.alpha_m*rho_m*(gamma_m+b_delay_m*lambda_m)) *(-beta_m*Shat*lambda_m + mu_mc*mu_mv - beta_m*Shat*rho_m*(mu_mc*gamma_m-lambda_m))
-    
-    part.4 <-  mu_mc+mu_mv+beta_m*Shat*b_delay_m*lambda_m - beta_m*Shat*rho_m*(gamma_m - f.alpha_m*mu_mc*gamma_m + f.alpha_m*lambda_m + b_delay_m*lambda_m) 
-    fit1 <- part.1*(part.2+sqrt(part.4^2 - part.3) )
-    return(fit1)
+     return(fit1)
     
     }
 }

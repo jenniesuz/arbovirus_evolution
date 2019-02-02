@@ -54,7 +54,7 @@ mod.nd <- function(tt,yy,parms) with(c(parms,as.list(yy)), {
   
   deriv[4] <- budding*I_p - v_death*V_p                    # free persistent virus
   
-  deriv[5] <- yield*apoptosis*I_a - v_death*V_a            # free acute virus
+  deriv[5] <- yield*apoptosis*I_a - v_death*V_a      # free acute virus
   
   return(list(deriv))
 })
