@@ -69,26 +69,28 @@ ggplot(lam.mut, aes(x=lam,y=lam.mut)) +
 
 #*******************************************************************************
 
-lambda_m <-  seq(1,5000,0.1)       # range of values for mutant virus 
+lambda_m <-  seq(1,400,0.05)       # range of values for mutant virus 
 fit.bound1 <- sapply(lambda_m,function(y){
  return( uniroot.all(fun.nodelay,c(1,10000),lambda_m=y,gamma="NA",mu_mc=1/24,mu_c=1/24))
 })
 
 fit.bound2 <- sapply(lambda_m,function(y){
+  return( uniroot.all(fun.nodelay,c(1,10000),lambda_m=y,gamma="NA",mu_mc=1/120,mu_c=1/120))
+})
+
+fit.bound3 <- sapply(lambda_m,function(y){
   return(uniroot.all(fun.delay,c(1,10000),lambda_m=y,gamma="NA"))
 })
 
 lam.roots <- cbind.data.frame(lambda_m,"fit.bound1"=as.numeric(fit.bound1),"fit.bound2"=as.numeric(fit.bound2))
 
-#pdf(file="fig_10.pdf",width=5,height=4)
+pdf(file="fig_10.pdf",width=5,height=4)
 ggplot(lam.roots, aes(x=fit.bound1,y=lambda_m)) +
-  geom_line(aes(x=fit.bound1,y=lambda_m,color="No delays"),linetype=1) +
-  geom_line(aes(x=fit.bound2,y=lambda_m,color="Delays"),linetype=2) +
-  scale_color_manual(name="",values=c("No delays"="blue","Delays"="red")) +
-  guides(color=guide_legend(override.aes=list(linetype=c(2,1)))) +
+  geom_ribbon(aes(x=fit.bound1/24,ymin=0,ymax=lambda_m),fill="grey") +
+  #geom_line(aes(x=fit.bound2/24,y=lambda_m),color="red") +
   labs(y=expression(paste("Mutant virus budding rate (",italic(lambda)["m"],")"))
-       , x=expression(paste("Resident virus yield at apoptosis (",italic(gamma),")"))) +
+       , x=expression(paste("Resident virus yield at apoptosis * apoptosis rate  (",italic(gamma),italic(alpha),")"))) +
   theme_set(theme_bw())  +
   theme
-#dev.off()
+dev.off()
 #**********************************************************************************

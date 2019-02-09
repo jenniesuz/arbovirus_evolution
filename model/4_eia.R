@@ -7,9 +7,9 @@ library(rootSolve)
 mutfit <- function(mu_mv=0.1                  # mutant virus clearance rate
                          ,mu_mc = 1/120       # mutant virus cell death rate
                          ,beta_m = 10^-9      # mutant probability of infecting susceptible cells
-                         ,gamma_m = 2400      # mutant virus yeild at apoptosis
+                         ,gamma_m = 0      # mutant virus yeild at apoptosis
                          ,lambda_m = 100
-                         ,alpha_m = 1/24      # mutant virus apoptosis rate
+                         ,alpha_m =0      # mutant virus apoptosis rate
                          ,mu_v=0.1            # resident virus clearance rate  
                          ,mu_c = 1/120        # resident infected cell death rate 
                          ,beta = 10^-9        # resident probability of infecting susceptible cells
@@ -78,9 +78,9 @@ fun.nodelay <- function(x
                 ,mu_mv=0.1           # mutant virus clearance rate
                 ,mu_mc = 1/120       # mutant virus cell death rate
                 ,beta_m = 10^-6      # mutant probability of infecting susceptible cells
-                ,gamma_m = 2400      # mutant virus yeild at apoptosis
+                ,gamma_m = 0      # mutant virus yeild at apoptosis
                 ,lambda_m = 100
-                ,alpha_m = 1/24      # mutant virus apoptosis rate
+                ,alpha_m = 0      # mutant virus apoptosis rate
                 ,mu_v=0.1            # resident virus clearance rate  
                 ,mu_c = 1/120        # resident infected cell death rate 
                 ,beta = 10^-6        # resident probability of infecting susceptible cells
