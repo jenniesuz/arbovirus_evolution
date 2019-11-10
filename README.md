@@ -1,2 +1,2 @@
 # arbovirus_evolution
-Analyses of arbovirus evolution
+Analyses of virus evolution
