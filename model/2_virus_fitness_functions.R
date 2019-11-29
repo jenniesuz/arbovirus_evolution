@@ -10,8 +10,8 @@ fit.nodelay <- function(mu_v=0.1                # virus clearance rate
                         ,alpha=1/24         # apoptosis rate
                         ,gamma=50           # virus yield at apoptosis
                         ,S = 10^6){         # susceptible cells
-  fit1 <- (- (mu_i+mu_v+alpha) + sqrt( (mu_i+mu_v+alpha)^2 - 4*(mu_v*(alpha+mu_i) - beta*S*(gamma*alpha+lambda) ) ))  / 2
-  fit2 <- (- (mu_i+mu_v+alpha) - sqrt( (mu_i+mu_v+alpha)^2 - 4*(mu_v*(alpha+mu_i) - beta*S*(gamma*alpha+lambda) ) )) / 2
+  fit1 <- (- (mu_c+mu_v+alpha) + sqrt( (mu_c+mu_v+alpha)^2 - 4*(mu_v*(alpha+mu_c) - beta*S*(gamma*alpha+lambda) ) ))  / 2
+  fit2 <- (- (mu_c+mu_v+alpha) - sqrt( (mu_c+mu_v+alpha)^2 - 4*(mu_v*(alpha+mu_c) - beta*S*(gamma*alpha+lambda) ) )) / 2
   return(fit1)
 }
 #*****allow to take multiple values for a parameter******
@@ -20,8 +20,7 @@ fit.nodelay.v <- Vectorize(fit.nodelay)
 
 
 #****************Model with budding and apoptosis, with delays**********************
-fit.delay <- function(  r = 0.03            # susceptible cell growth rate
-                        ,mu_v=0.1           # virus clearance rate
+fit.delay <- function(mu_v=0.1           # virus clearance rate
                         ,mu_c = 1/120       # infected cell death rate
                         ,beta = 10^-6       # probability of single virion infecting susceptible cell
                         ,lambda=10          # release rate of virus from infected cells

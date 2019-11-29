@@ -33,7 +33,7 @@ lam <- seq(1,500,0.1)
 bet <- seq(0,10^-5,10^-8)
 alph <- seq(1/72,1/2,1/200)
 gam <- seq(1,500*24,100)
-
+muc <- seq(1/500,1/2,1/200)
 S = 10^6
 
 
@@ -41,6 +41,8 @@ vals.lam <- fit.nodelay.v(lambda=lam,gamma=0,alpha=0)
 vals.alph <- fit.nodelay.v(alpha=alph, lambda=0)
 vals.gam <- fit.nodelay.v(gamma=gam,lambda=0,alpha=1/24)
 vals.bet <- fit.nodelay.v(beta=bet,gamma=0,alpha=0)
+vals.mucp <- fit.nodelay.v(mu_c=muc,gamma=0,alpha=0)
+vals.muca <- fit.nodelay.v(mu_c=muc,lambda=0)
 
 #****************fitness function plots for model without delays****************
 pdf(file="fig_2.pdf",width=4,height=4)
@@ -68,8 +70,20 @@ b <- ggplot(cbind.data.frame(bet,vals.bet), aes(x=bet,y=vals.bet)) +
   labs( x=expression(paste(beta)),y=" ", title="d)") +
   theme_set(theme_bw())  +
   theme
+mp <- ggplot(cbind.data.frame(muc,vals.mucp), aes(x=muc,y=vals.mucp)) +
+  geom_line() +
+  ylim(0,20) +
+  labs( x=expression(paste(mu),"I"),y=" ", title="e)") +
+  theme_set(theme_bw())  +
+  theme
+ma <- ggplot(cbind.data.frame(muc,vals.muca), aes(x=muc,y=vals.muca)) +
+  geom_line() +
+  ylim(0,20) +
+  labs( x=expression(paste(mu),"I"),y=" ", title="f)") +
+  theme_set(theme_bw())  +
+  theme
 
-grid.arrange(l, g, a, b, nrow = 2)
+grid.arrange(l, g, a, b,mp,ma, nrow = 3)
 
 dev.off()
 

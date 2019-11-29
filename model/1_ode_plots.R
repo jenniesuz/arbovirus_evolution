@@ -38,7 +38,7 @@ no.delays <- simPop.nd(parms=params.nd(apoptosis=1/24 # see 1a r script
                                      ,yield=6000
                                      ,budding=500
                                      ,inf=10^-9
-                                     ,c_death=1/240))
+                                     ,c_death=1/120))
 
 
 delays <- simPop.b(parms=params.b(delay_a=24        # see 1d r script
@@ -64,6 +64,7 @@ combined.mods <- cbind.data.frame(time=c(no.delays$time,no.delays$time,delays$ti
 #pdf(file="fig_1.pdf",width=5,height=4)
 ggplot(combined.mods, aes(x=time,y=results)) +
   geom_line(aes(x=time,y=log10(results),color=virustype)) +
+  ylim(4,10) +
   scale_color_manual(values=as.character(cols)) +
   facet_wrap( ~ mod,labeller = label_wrap_gen(width=30,multi_line=FALSE)) +
   labs( y=expression(paste("Number of virions (",log[10],")")),x="Time (hours)") +

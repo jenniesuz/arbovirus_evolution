@@ -27,7 +27,7 @@ mutfit <- function(mu_mv=0.1                  # mutant virus clearance rate
 mutfit.delay <- function(mu_mv=0.1            # mutant virus clearance rate
                          ,mu_mc = 1/120       # mutant virus cell death rate
                          ,beta_m = 10^-9      # mutant probability of infecting susceptible cells
-                         ,gamma_m = 2400      # mutant virus yeild at apoptosis
+                         ,gamma_m = 2400     # mutant virus yeild at apoptosis
                          ,lambda_m = 100      # mutant virus budding rate
                          ,tau_a_m = 24      # mutant virus fixed time to apoptosis
                          ,tau_b_m = 2       # delay in budding
@@ -35,8 +35,8 @@ mutfit.delay <- function(mu_mv=0.1            # mutant virus clearance rate
                          ,mu_c = 1/120        # resident infected cell death rate 
                          ,beta = 10^-9        # resident probability of infecting susceptible cells
                          ,tau_a = 24        # resident virus fixed time to apoptosis
-                         ,gamma = 2400 
-                         ,lambda = 0        
+                         ,gamma = 20
+                         ,lambda = 1        
                          ,tau_b=2
                          ,r=0.03){            # susceptible cell growth rate  
   sigma_m <- exp(-mu_mc*tau_a_m)
@@ -44,23 +44,14 @@ mutfit.delay <- function(mu_mv=0.1            # mutant virus clearance rate
   sigma  <- exp(-mu_c*tau_a)
   sigmab <- exp(-mu_c*tau_b)
   
-  #Shat <- (mu_v*mu_c) / ( beta*(sigmab*lambda -sigma*sigmab*lambda + gamma*sigma))
-  Shat <-   ( mu_v*mu_c / beta ) / ( (lambda*sigmab*(  - sigma) + mu_c*gamma*sigma) / mu_c) 
-  
+  Shat <-   mu_c*( (mu_c / (lambda*beta*(1-sigma)*sigmab)) + (1/(gamma*beta*sigma) )      )
+
   a <- (1  + gamma_m*beta_m*Shat*sigma_m*tau_a_m + beta_m*Shat*sigma_m*tau_a_m*lambda_m*sigmab_m*tau_b_m)
   b <- (mu_mc + mu_mv - gamma_m*beta_m*Shat*sigma_m + gamma_m*beta_m*Shat*sigma_m*tau_a_m*mu_mc  + lambda_m*sigmab_m*tau_b_m*beta_m*Shat - lambda_m*sigmab_m*beta_m*Shat*sigma_m*tau_a_m  - lambda_m*sigmab_m*tau_b_m*beta_m*Shat*sigma_m)
   c <- (mu_mc*mu_mv - gamma_m*beta_m*Shat*sigma_m*mu_mc - lambda_m*sigmab_m*beta_m*Shat + lambda_m*sigmab_m*beta_m*Shat*sigma_m)
-  fit1 <- (- b + sqrt(b^2 - 4*a*c))/ (2*a)
+ fit1 <- (- b + sqrt(b^2 - 4*a*c))/ (2*a)
+ 
   
-  # assuming no death for virus budding delay
-#  Shat <-   (mu_v*mu_c) / (beta * (lambda*(-sigma*r-sigma*mu_c) + gamma*sigma ) )
-
-#  a <- (1 + beta_m*Shat*tau_a_m*sigma_m*(gamma_m+tau_b_m*lambda_m))
-#  b <- (mu_mc + mu_mv + beta_m*Shat*lambda_m*tau_b_m - beta_m*Shat*sigma_m*(gamma_m - gamma_m*tau_a_m*mu_mc + lambda_m*tau_a_m +lambda_m*tau_b_m))
-#  c <- (mu_mc*mu_mv - beta_m*Shat*lambda_m - beta_m*Shat*sigma_m*(gamma_m*mu_mc - lambda_m))
-#  fit1 <- (- b + sqrt(b^2 - 4*a*c))/ (2*a)
-  
-    
  return(fit1)
 
 }
@@ -100,31 +91,29 @@ fun.delay <- function(x
                 ,mu_mv=0.1            # mutant virus clearance rate
                 ,mu_mc = 1/120       # mutant virus cell death rate
                 ,beta_m = 10^-6      # mutant probability of infecting susceptible cells
-                ,gamma_m = 0      # mutant virus yeild at apoptosis
-                ,lambda_m = 100
-                ,tau_a_m = 2000      # mutant virus apoptosis rate
-                ,tau_b_m = 12  
+                ,gamma_m = 2400      # mutant virus yeild at apoptosis
+                ,lambda_m = 1
+                ,tau_a_m = 24       # mutant virus apoptosis 
+                ,tau_b_m = 24 
                 ,mu_v=0.1            # resident virus clearance rate  
                 ,mu_c = 1/120        # resident infected cell death rate 
                 ,beta = 10^-6        # resident probability of infecting susceptible cells
-                ,tau_a = 24        # resident virus apoptosis rate
                 ,gamma = 2400
-                ,lambda = 0
-                ,tau_b = 2
+                ,lambda = 1
+                ,tau_a = 24        # resident virus apoptosis rate
+                ,tau_b = 24
                 ,r=0.03
 ){
   
-  if(gamma=="NA"){
+  if(lambda=="NA"){
     
-    gamma_m <- 0
-    tau_a_m <- 1000
+   # gamma <- 1
     sigma_m <- exp(-mu_mc*tau_a_m)
     sigmab_m <- exp(-mu_mc*tau_b_m)
     sigma  <- exp(-mu_c*tau_a)
     sigmab <- exp(-mu_c*tau_b)
     
-    #Shat <- (mu_v*mu_c) / ( beta*(sigmab*lambda -sigma*sigmab*lambda + gamma*sigma))
-    Shat <-   ( mu_v*mu_c / beta ) / ( (lambda*sigmab*(  - sigma) + mu_c*x*sigma) / mu_c) 
+    Shat <-   mu_c*( (mu_c / (x*beta*(1-sigma)*sigmab)) + (1/(gamma*beta*sigma) )      )
     
     a <- (1  + gamma_m*beta_m*Shat*sigma_m*tau_a_m + beta_m*Shat*sigma_m*tau_a_m*lambda_m*sigmab_m*tau_b_m)
     b <- (mu_mc + mu_mv - gamma_m*beta_m*Shat*sigma_m + gamma_m*beta_m*Shat*sigma_m*tau_a_m*mu_mc  + lambda_m*sigmab_m*tau_b_m*beta_m*Shat - lambda_m*sigmab_m*beta_m*Shat*sigma_m*tau_a_m  - lambda_m*sigmab_m*tau_b_m*beta_m*Shat*sigma_m)
@@ -132,9 +121,25 @@ fun.delay <- function(x
     fit1 <- (- b + sqrt(b^2 - 4*a*c))/ (2*a)
     
     
-     return(fit1)
-    
-    }
+  }
+  return(fit1)
 }
 
 
+
+
+mutfit.delay(mu_mv=0.1            # mutant virus clearance rate
+                         ,mu_mc = 1/120       # mutant virus cell death rate
+                         ,beta_m = 10^-9      # mutant probability of infecting susceptible cells
+                         ,gamma_m = 200    # mutant virus yeild at apoptosis
+                         ,lambda_m = 10      # mutant virus budding rate
+                         ,tau_a_m = 24      # mutant virus fixed time to apoptosis
+                         ,tau_b_m = 24       # delay in budding
+                         ,mu_v=0.1            # resident virus clearance rate  
+                         ,mu_c = 1/120        # resident infected cell death rate 
+                         ,beta = 10^-9        # resident probability of infecting susceptible cells
+                         ,gamma =200
+                         ,lambda = 10 
+                         ,tau_a = 24        # resident virus fixed time to apoptosis
+                         ,tau_b=24
+                         ,r=0.03)
